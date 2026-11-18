@@ -239,7 +239,8 @@ body.listo .reloj, body.listo .frase { display: none; }
 }
 @media (min-width: 900px) { .panel { padding: 30px 26px 24px; } .mundo { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent; } }
 .panel h2 { font-family: "Anton", sans-serif; font-style: italic; font-weight: 400; font-size: clamp(32px, 8vw, 46px); letter-spacing: .5px; }
-.panel h2 span { background: linear-gradient(90deg, var(--cian), var(--violeta), var(--rosa)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.panel h2 span { background: linear-gradient(90deg, var(--cian), var(--violeta), var(--rosa)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  padding: 0 .14em; margin: 0 -.14em; } /* margen para que la cursiva no corte la última letra */
 .sub { font-size: 13px; color: rgba(255,255,255,.62); margin: 4px 0 18px; }
 .h3 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin: 26px 0 10px; text-align: left; font-weight: 700; }
 
@@ -274,6 +275,7 @@ body.listo .reloj, body.listo .frase { display: none; }
 @media (min-width: 900px) { .oficial { grid-template-columns: repeat(3, 1fr); } }
 .of { display: flex; flex-direction: column; gap: 3px; padding: 14px; border-radius: 14px; text-decoration: none; text-align: left; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #fff; transition: background .3s, border-color .3s, transform .3s; }
 .of:hover { background: rgba(0,240,255,.1); border-color: rgba(0,240,255,.5); transform: translateY(-2px); }
+@media (max-width: 899px) { .oficial .of:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 .of span { font-size: 22px; }
 .of b { font-size: 14px; }
 .of small { font-size: 11px; color: rgba(255,255,255,.55); line-height: 1.35; }
@@ -318,6 +320,148 @@ body.listo .reloj, body.listo .frase { display: none; }
 .pts { display: flex; gap: 6px; align-items: center; margin: 0 6px; }
 .pts i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); transition: all .3s; }
 .pts i.on { width: 24px; border-radius: 99px; background: var(--rosa); box-shadow: 0 0 10px var(--rosa); }
+
+/* ===== Índice de secciones ===== */
+.indice { position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 4px 12px 18px; max-width: 1100px; margin: 0 auto; }
+.indice a {
+  padding: 9px 16px; border-radius: 99px; font-weight: 700; font-size: 13px; color: #fff; text-decoration: none;
+  background: rgba(10,2,30,.6); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.indice a:hover, .indice a:focus-visible { border-color: var(--cian); box-shadow: 0 0 14px rgba(0,240,255,.4); background: rgba(0,240,255,.1); outline: none; }
+#trailers, #mundo, .bloque { scroll-margin-top: 72px; }
+
+/* ===== Bloques de contenido oficial ===== */
+.mas { position: relative; z-index: 2; display: grid; gap: 20px; padding: 0 12px max(40px, env(safe-area-inset-bottom)); }
+@media (min-width: 900px) { .mas { max-width: 1440px; margin: 0 auto; padding: 0 32px 70px; gap: 28px; } }
+.bloque { text-align: left; min-width: 0; }
+.bloque > .sub { text-align: center; }
+.bloque > h2 { text-align: center; }
+.nota-c { text-align: center; }
+.enlace { display: inline-flex; align-items: center; gap: 6px; color: var(--cian); font-weight: 700; font-size: 13px; text-decoration: none; }
+.enlace:hover { text-decoration: underline; }
+.boton-carta { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.boton-carta:focus-visible, .postal:focus-visible, .foto:focus-visible, .radio:focus-visible, .filtro:focus-visible { outline: 2px solid var(--cian); outline-offset: 3px; }
+
+/* Personajes */
+.pj-top, .pj-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+.pj-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+@media (min-width: 760px) { .pj-top { grid-template-columns: 1fr 1fr; gap: 18px; } .pj-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 18px; } }
+.pj { border-radius: 18px; overflow: hidden; background: linear-gradient(170deg, rgba(40,8,70,.7), rgba(10,2,26,.85)); border: 1px solid rgba(255,255,255,.12); transition: transform .35s cubic-bezier(.2,.9,.3,1.2), border-color .35s, box-shadow .35s; }
+.pj:hover { transform: translateY(-4px); border-color: rgba(255,42,138,.6); box-shadow: 0 18px 44px rgba(255,42,138,.28); }
+.pj-foto { position: relative; aspect-ratio: 16/9; overflow: hidden; background: #12042a; }
+.pj-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
+.pj:hover .pj-foto img { transform: scale(1.06); }
+.pj-foto .cuenta { position: absolute; top: 8px; right: 8px; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 8px; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2); }
+.pj-txt { padding: 12px 14px 14px; display: grid; gap: 4px; }
+.pj-txt .rol { justify-self: start; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--oro); }
+.pj-txt b { font-family: "Anton", Impact, sans-serif; font-weight: 400; font-size: 21px; letter-spacing: .3px; line-height: 1.1; }
+.pj-top .pj-txt b { font-size: 30px; }
+.pj-txt p { font-size: 13px; line-height: 1.45; color: rgba(255,255,255,.72); }
+@media (max-width: 759px) { .pj-grid .pj-txt p { font-size: 12px; } .pj-grid .pj-txt b { font-size: 18px; } }
+
+/* Leónida: mapa + postales */
+.leo { display: grid; gap: 18px; align-items: center; }
+@media (min-width: 900px) { .leo { grid-template-columns: minmax(320px, .85fr) 1.15fr; gap: 28px; } }
+.mapa { position: relative; }
+.mapa svg { display: block; width: 100%; max-width: 470px; height: auto; margin: 0 auto; }
+.mapa .pin { cursor: pointer; outline: none; }
+.mapa .pin circle.punto { fill: var(--rosa); stroke: #fff; stroke-width: 2; transition: r .25s; }
+.mapa .pin circle.onda { fill: none; stroke: var(--rosa); stroke-width: 2; opacity: 0; }
+.mapa .pin text { font: 700 11px "Space Grotesk", sans-serif; letter-spacing: 1px; text-transform: uppercase; fill: rgba(255,255,255,.75); paint-order: stroke; stroke: #0a0322; stroke-width: 4px; transition: fill .25s; }
+.mapa .pin:hover text, .mapa .pin:focus-visible text { fill: #fff; }
+.mapa .pin.on circle.punto { fill: var(--cian); r: 9; }
+.mapa .pin.on circle.onda { stroke: var(--cian); animation: onda 1.6s infinite; }
+.mapa .pin.on text { fill: var(--cian); }
+@keyframes onda { from { r: 9; opacity: .9 } to { r: 26; opacity: 0 } }
+.mapa-nota { font-size: 11px; color: rgba(255,255,255,.45); text-align: center; margin-top: 8px; line-height: 1.5; }
+.lugar { display: grid; gap: 14px; }
+.lugar-img { position: relative; aspect-ratio: 16/9; border-radius: 18px; overflow: hidden; background: #12042a; box-shadow: 0 20px 50px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.12); cursor: zoom-in; }
+.lugar-img img { width: 100%; height: 100%; object-fit: cover; animation: postal .5s ease-out; }
+@keyframes postal { from { opacity: 0; transform: scale(1.04) rotate(-.6deg) } }
+.lugar-txt small { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--oro); }
+.lugar-txt h3 { font-family: "Anton", Impact, sans-serif; font-weight: 400; font-size: clamp(28px, 4vw, 40px); line-height: 1.05; margin: 2px 0 6px; }
+.lugar-txt p { font-size: 14px; line-height: 1.55; color: rgba(255,255,255,.78); max-width: 62ch; margin-bottom: 8px; }
+.postales { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+@media (min-width: 900px) { .postales { grid-template-columns: repeat(6, 1fr); gap: 12px; } }
+.postal { position: relative; aspect-ratio: 16/10; border-radius: 12px; overflow: hidden; border: 2px solid transparent; background: #12042a; cursor: pointer; padding: 0; transition: border-color .25s, transform .25s, box-shadow .25s; }
+.postal img { width: 100%; height: 100%; object-fit: cover; }
+.postal span { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 5px; font-size: 11px; font-weight: 700; color: #fff; background: linear-gradient(transparent, rgba(5,0,15,.9)); text-align: center; }
+.postal:hover { transform: translateY(-3px); }
+.postal.on { border-color: var(--cian); box-shadow: 0 0 18px rgba(0,240,255,.45); }
+
+/* Galería */
+.filtros { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; }
+.filtro { padding: 8px 14px; border-radius: 99px; cursor: pointer; font: 700 13px "Space Grotesk", sans-serif; color: rgba(255,255,255,.8); background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.14); transition: all .2s; }
+.filtro:hover { color: #fff; border-color: rgba(255,255,255,.4); }
+.filtro.on { color: #fff; background: linear-gradient(90deg, var(--rosa), var(--naranja)); border-color: transparent; box-shadow: 0 0 16px rgba(255,42,138,.45); }
+.filtro small { opacity: .7; margin-left: 4px; font-weight: 500; }
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+@media (min-width: 900px) { .galeria { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; } }
+.foto { position: relative; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; padding: 0; border: 1px solid rgba(255,255,255,.1); background: #12042a; cursor: zoom-in; }
+.foto img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s, filter .3s; }
+.foto:hover img { transform: scale(1.07); filter: brightness(1.1); }
+.foto span { position: absolute; left: 8px; bottom: 6px; font-size: 11px; font-weight: 700; color: #fff; text-shadow: 0 1px 6px #000; opacity: 0; transition: opacity .25s; }
+.foto:hover span { opacity: 1; }
+
+/* Radio y discos */
+.radios { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (min-width: 760px) { .radios { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
+.radio { position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0; border-radius: 16px; overflow: hidden; cursor: pointer; text-align: left; color: #fff; font: inherit; background: #12042a; border: 1px solid rgba(255,255,255,.12); transition: border-color .3s, box-shadow .3s, transform .3s; }
+.radio:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.35); }
+.radio-fondo { position: absolute; inset: 0; background-size: cover; background-position: center; filter: saturate(1.1) brightness(.75); transition: filter .4s, transform .6s; }
+.radio:hover .radio-fondo { transform: scale(1.05); }
+.radio::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 25%, rgba(5,0,15,.92)); }
+/* logo arriba, texto debajo: así no se pisan aunque el texto ocupe varias líneas */
+.radio-logo { position: absolute; z-index: 1; left: 50%; top: 14px; transform: translateX(-50%); max-width: 62%; height: 64px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,.6)); }
+.radio-txt { position: relative; z-index: 1; padding: 92px 50px 12px 12px; display: grid; gap: 2px; }
+@media (max-width: 759px) { .radio-logo { height: 52px; top: 12px; } .radio-txt { padding-top: 74px; } }
+.radio-txt b { font-size: 15px; }
+.radio-txt small { font-size: 11.5px; line-height: 1.35; color: rgba(255,255,255,.72); }
+.radio-play { position: absolute; z-index: 2; right: 10px; bottom: 12px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,42,138,.9); box-shadow: 0 0 16px var(--rosa); }
+.radio-play svg { width: 15px; height: 15px; }
+.radio .ico-pausa { display: none; }
+.radio.on .ico-pausa { display: block; }
+.radio.on .ico-play { display: none; }
+.radio-barra { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,.1); }
+.radio-barra i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--cian), var(--rosa)); box-shadow: 0 0 10px var(--cian); }
+.radio.on { border-color: var(--cian); box-shadow: 0 0 22px rgba(0,240,255,.4); }
+.radio.on .radio-fondo { filter: saturate(1.3) brightness(.95); }
+.radio.on .radio-play { background: var(--cian); box-shadow: 0 0 16px var(--cian); color: #05010f; }
+.discos { display: grid; gap: 12px; grid-template-columns: 1fr; margin-top: 18px; }
+@media (min-width: 760px) { .discos { grid-template-columns: 1fr 1fr; gap: 16px; } }
+.disco { display: grid; grid-template-columns: 104px 1fr; gap: 14px; align-items: center; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); }
+.disco img { width: 104px; height: 104px; border-radius: 10px; object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+.disco div { display: grid; gap: 4px; min-width: 0; }
+.disco small { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--oro); }
+.disco b { font-size: 16px; line-height: 1.25; }
+.disco p { font-size: 12.5px; color: rgba(255,255,255,.68); line-height: 1.4; }
+.disco .enlaces { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+
+/* Ediciones y noticias */
+.tarjetas { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 600px) { .tarjetas { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .tarjetas.cuatro { grid-template-columns: repeat(4, 1fr); gap: 18px; } .tarjetas.tres { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+.tarjeta { display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; text-decoration: none; color: #fff; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); transition: transform .3s, border-color .3s, box-shadow .3s; }
+.tarjeta:hover { transform: translateY(-3px); border-color: rgba(0,240,255,.5); box-shadow: 0 14px 36px rgba(0,240,255,.15); }
+.tarjeta .t-img { aspect-ratio: 16/9; background: radial-gradient(ellipse at 50% 60%, #3a1066, #12042a); overflow: hidden; }
+.tarjeta .t-img img { width: 100%; height: 100%; object-fit: cover; }
+.tarjeta .t-img img.contener { object-fit: contain; padding: 8px; }
+.tarjeta .t-txt { padding: 12px 14px 14px; display: grid; gap: 4px; }
+.tarjeta small { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--oro); }
+.tarjeta b { font-size: 15px; line-height: 1.3; }
+.tarjeta p { font-size: 12.5px; color: rgba(255,255,255,.66); line-height: 1.45; }
+
+/* ===== Visor de fotos ===== */
+.visor { position: fixed; inset: 0; z-index: 40; display: none; flex-direction: column; background: rgba(5,1,15,.97); }
+.visor.abierto { display: flex; animation: aparece .3s ease-out; }
+.visor-foto { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; padding: 0 10px; touch-action: pan-y; }
+.visor-foto img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 0 60px rgba(255,42,138,.25); user-select: none; -webkit-user-drag: none; }
+.visor .flecha { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; padding: 0; }
+.visor .flecha.izq { left: 14px; } .visor .flecha.der { right: 14px; }
+@media (max-width: 600px) { .visor .flecha { width: 42px; height: 42px; } .visor .flecha.izq { left: 6px; } .visor .flecha.der { right: 6px; } }
+.visor-pie { display: flex; justify-content: center; gap: 12px; padding: 12px 12px max(14px, env(safe-area-inset-bottom)); font-size: 13px; color: rgba(255,255,255,.7); }
+.visor-pie b { color: #fff; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
 </style>
@@ -372,13 +516,17 @@ body.listo .reloj, body.listo .frase { display: none; }
     </div>
   </div>
 
-  <a class="bajar" href="#extra">Tráileres y vuelta al mundo
+  <a class="bajar" href="#indice">Tráileres, personajes, Leónida y más
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
   </a>
 </section>
 
+<nav class="indice" id="indice" aria-label="Secciones">
+  <a href="#trailers">Tráileres</a><a href="#personajes">Personajes</a><a href="#leonida">Leónida</a><a href="#galeria">Galería</a><a href="#radio">Radio y música</a><a href="#mundo">Vuelta al mundo</a><a href="#ediciones">Ediciones</a><a href="#noticias">Noticias</a>
+</nav>
+
 <div class="extra" id="extra">
-  <section class="panel">
+  <section class="panel" id="trailers">
     <h2><span>Tráileres oficiales</span></h2>
     <p class="sub">Se ven aquí mismo, a pantalla completa, sin comentarios ni vídeos recomendados 🙈</p>
     <div class="vids" id="vids"></div>
@@ -389,13 +537,16 @@ body.listo .reloj, body.listo .frase { display: none; }
       <a class="of" href="https://www.rockstargames.com/VI" target="_blank" rel="noopener"><span>🌴</span><b>Web oficial</b><small>rockstargames.com/VI</small></a>
       <a class="of" href="https://www.rockstargames.com/VI/only-in-leonida" target="_blank" rel="noopener"><span>🗺️</span><b>Only in Leonida</b><small>Personajes y lugares</small></a>
       <a class="of" href="https://www.rockstargames.com/VI/music" target="_blank" rel="noopener"><span>🎵</span><b>Música</b><small>GTA VI: The Album</small></a>
+      <a class="of" href="https://www.rockstargames.com/VI/launch-gallery" target="_blank" rel="noopener"><span>📸</span><b>Galería del lanzamiento</b><small>Capturas oficiales</small></a>
+      <a class="of" href="https://www.rockstargames.com/VI/media" target="_blank" rel="noopener"><span>🖼️</span><b>Arte y multimedia</b><small>Fondos de pantalla y descargas</small></a>
       <a class="of" href="https://www.rockstargames.com/newswire" target="_blank" rel="noopener"><span>📰</span><b>Rockstar Newswire</b><small>Noticias oficiales</small></a>
       <a class="of" href="https://store.playstation.com/es-es/concept/10000730" target="_blank" rel="noopener"><span>🎮</span><b>PlayStation Store</b><small>Ficha del juego</small></a>
+      <a class="of" href="https://store.rockstargames.com/grand-theft-auto-vi-collection" target="_blank" rel="noopener"><span>🛍️</span><b>Tienda Rockstar</b><small>Ropa y coleccionables</small></a>
       <a class="of" href="https://www.youtube.com/@RockstarGames/videos" target="_blank" rel="noopener"><span>▶️</span><b>Canal de Rockstar</b><small>Ojo: ahí ya hay recomendados</small></a>
     </div>
   </section>
 
-  <section class="panel mundo">
+  <section class="panel mundo" id="mundo">
     <h2><span>Vuelta al mundo</span></h2>
     <p class="sub">Cuándo se desbloquea en cada región (hora canaria)</p>
     <div class="mbarra"><i id="mbarra"></i></div>
@@ -403,6 +554,149 @@ body.listo .reloj, body.listo .frase { display: none; }
     <div id="lista"></div>
     <p class="nota">Las horas van por la región de la tienda de PlayStation de la cuenta. En noviembre, la hora canaria coincide con la UTC.</p>
   </section>
+</div>
+
+<main class="mas">
+  <section class="panel bloque" id="personajes">
+    <h2><span>Personajes</span></h2>
+    <p class="sub">Los ocho que ha presentado Rockstar. Toca uno para ver sus fotos oficiales.</p>
+    <div class="pj-top" id="pjTop"></div>
+    <div class="pj-grid" id="pjGrid"></div>
+  </section>
+
+  <section class="panel bloque" id="leonida">
+    <h2><span>Leónida</span></h2>
+    <p class="sub">El estado donde pasa todo: los seis lugares que ha enseñado Rockstar, con sus postales oficiales.</p>
+    <div class="leo">
+      <div class="mapa">
+        <svg viewBox="0 0 420 440" role="group" aria-label="Esquema de Leónida con los seis lugares">
+          <defs>
+            <linearGradient id="tierra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#43127a"/><stop offset="1" stop-color="#1c0638"/></linearGradient>
+            <pattern id="olas" width="16" height="12" patternUnits="userSpaceOnUse"><path d="M0 6q4-4 8 0t8 0" fill="none" stroke="rgba(0,240,255,.13)" stroke-width="1"/></pattern>
+            <filter id="neon" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <rect width="420" height="440" rx="20" fill="#0a0322"/>
+          <rect width="420" height="440" rx="20" fill="url(#olas)"/>
+          <path d="M18 64L322 62C326 84 330 104 334 124C342 160 352 196 358 232C364 262 368 290 362 318C356 342 342 358 322 362C304 362 292 346 280 322C266 296 254 266 242 236C230 206 220 178 204 158C188 140 166 128 136 124C104 120 60 116 18 112Z" fill="url(#tierra)" stroke="#ff2a8a" stroke-width="2" stroke-linejoin="round" filter="url(#neon)"/>
+          <g fill="url(#tierra)" stroke="#ff2a8a" stroke-width="1.3">
+            <ellipse cx="300" cy="378" rx="10" ry="3.6" transform="rotate(-22 300 378)"/><ellipse cx="281" cy="388" rx="10" ry="3.4" transform="rotate(-18 281 388)"/>
+            <ellipse cx="262" cy="396" rx="10" ry="3.2" transform="rotate(-14 262 396)"/><ellipse cx="243" cy="402" rx="9" ry="3" transform="rotate(-10 243 402)"/>
+            <ellipse cx="225" cy="406" rx="8" ry="2.8" transform="rotate(-6 225 406)"/><ellipse cx="209" cy="409" rx="6" ry="2.5"/>
+          </g>
+          <ellipse cx="322" cy="244" rx="16" ry="12" fill="#0a0322" stroke="rgba(0,240,255,.55)" stroke-width="1.3"/>
+          <path d="M18 64L322 62" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.2" stroke-dasharray="5 5"/>
+          <text x="170" y="50" text-anchor="middle" fill="rgba(255,255,255,.4)" style="font: 700 10px 'Space Grotesk', sans-serif; letter-spacing: 3px">FRONTERA NORTE</text>
+          <g transform="translate(386 36)" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.5"><path d="M0 14V-10M-6 -2L0 -12L6 -2"/><text x="0" y="28" text-anchor="middle" stroke="none" fill="rgba(255,255,255,.55)" style="font: 700 11px 'Space Grotesk', sans-serif">N</text></g>
+          <g id="pines"></g>
+        </svg>
+        <p class="mapa-nota">Esquema orientativo. En la web oficial no hay mapa: cada lugar está situado según lo que cuenta Rockstar de él.</p>
+      </div>
+      <div class="lugar">
+        <div class="lugar-img" id="lugarImg" role="button" tabindex="0" aria-label="Ver la postal a pantalla completa"></div>
+        <div class="lugar-txt">
+          <small id="lugarLema"></small>
+          <h3 id="lugarNom"></h3>
+          <p id="lugarDesc"></p>
+          <a class="enlace" href="https://www.rockstargames.com/VI/only-in-leonida" target="_blank" rel="noopener">Más en «Cosas de Leónida» ↗</a>
+        </div>
+      </div>
+    </div>
+    <div class="postales" id="postales"></div>
+  </section>
+
+  <section class="panel bloque" id="galeria">
+    <h2><span>Galería oficial</span></h2>
+    <p class="sub">Las capturas de la galería del lanzamiento y el arte oficial. Toca una para verla a pantalla completa.</p>
+    <div class="filtros" id="filtros"></div>
+    <div class="galeria" id="fotos"></div>
+  </section>
+
+  <section class="panel bloque" id="radio">
+    <h2><span>Radio y música</span></h2>
+    <p class="sub">Adelantos oficiales de seis emisoras del juego. Suenan aquí mismo; toca otra vez para pararla.</p>
+    <div class="radios" id="radios"></div>
+    <div class="discos">
+      <div class="disco">
+        <img src="https://www.rockstargames.com/VI/_next/static/media/GTAVI_MusicPage_AlbumArt.05qucexa8vzgb.jpg?akim=1&imdensity=1&imwidth=320" alt="Portada de Grand Theft Auto VI: The Album" loading="lazy">
+        <div>
+          <small>Sale el 19 de noviembre</small>
+          <b>Grand Theft Auto VI: The Album</b>
+          <p>34 canciones originales inspiradas en Vice City y Leónida.</p>
+          <div class="enlaces"><a class="enlace" href="https://gtavi-thealbum.lnk.to/gtavithealbum" target="_blank" rel="noopener">Escuchar o reservar ↗</a></div>
+        </div>
+      </div>
+      <div class="disco">
+        <img src="https://www.rockstargames.com/VI/_next/static/media/Score_CoverArt_1014_1600x1600.0.5dr9slukqhb.jpg?akim=1&imdensity=1&imwidth=320" alt="Portada de Grand Theft Auto VI: Original Score by Justice" loading="lazy">
+        <div>
+          <small>Sale el 11 de diciembre</small>
+          <b>Original Score by Justice</b>
+          <p>La música original del juego, del dúo francés Justice: 30 temas que cambian según lo que hagas en el juego.</p>
+          <div class="enlaces">
+            <a class="enlace" href="https://justice.lnk.to/flowerinahurricane" target="_blank" rel="noopener">Flower in a Hurricane ↗</a>
+            <a class="enlace" href="https://justice.lnk.to/pusher" target="_blank" rel="noopener">Pusher ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="nota nota-c">Más en la <a class="enlace" href="https://www.rockstargames.com/VI/music" target="_blank" rel="noopener">página de música de Rockstar ↗</a></p>
+  </section>
+
+  <section class="panel bloque" id="ediciones">
+    <h2><span>Ediciones y extras</span></h2>
+    <p class="sub">Lo que se puede reservar o comprar, según Rockstar.</p>
+    <div class="tarjetas cuatro">
+      <a class="tarjeta" href="https://www.rockstargames.com/VI/media/screenshots#ultimate-edition" target="_blank" rel="noopener">
+        <div class="t-img"><img src="https://www.rockstargames.com/VI/_next/static/media/ULTIMATE_EDITION_02.0q-6.nrtf~jj0.jpg?akim=1&imdensity=1&imwidth=640" alt="" loading="lazy"></div>
+        <div class="t-txt"><small>Edición</small><b>Ultimate Edition</b><p>Extras ligados a la historia de Jason y Lucía, como el Grotti Cheetah del 95 y los revólveres Hawk &amp; Little Morgan.</p></div>
+      </a>
+      <a class="tarjeta" href="https://www.rockstargames.com/VI/media/screenshots#vintage-vice-city" target="_blank" rel="noopener">
+        <div class="t-img"><img src="https://www.rockstargames.com/VI/_next/static/media/VINTAGE_VICE_CITY_PACK_01.05zaof7o1uz.3.jpg?akim=1&imdensity=1&imwidth=640" alt="" loading="lazy"></div>
+        <div class="t-txt"><small>Bonus por reservar</small><b>Pack Vintage Vice City</b><p>El Vapid Stanier del 55 y ropa y peinados de estilo retro.</p></div>
+      </a>
+      <a class="tarjeta" href="https://store.rockstargames.com/grand-theft-auto-vi-collection" target="_blank" rel="noopener">
+        <div class="t-img"><img class="contener" src="https://www.rockstargames.com/VI/_next/static/media/collectorsMobile.09~60xnm5q~pr.png?akim=1&imdensity=1&imwidth=640" alt="" loading="lazy"></div>
+        <div class="t-txt"><small>Coleccionistas</small><b>The Vice City Collection</b><p>La caja de coleccionista que vende la tienda de Rockstar.</p></div>
+      </a>
+      <a class="tarjeta" href="https://store.rockstargames.com/" target="_blank" rel="noopener">
+        <div class="t-img"><img src="https://www.rockstargames.com/VI/_next/static/media/GTAVI_Merch_PromoCard.0_k5n2lk~h9h~.jpg?akim=1&imdensity=1&imwidth=640" alt="" loading="lazy"></div>
+        <div class="t-txt"><small>Tienda</small><b>Productos oficiales</b><p>Ropa y artículos de coleccionista de GTA VI.</p></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="panel bloque" id="noticias">
+    <h2><span>Últimas noticias</span></h2>
+    <p class="sub">Lo último que ha publicado Rockstar en su Newswire.</p>
+    <div class="tarjetas tres">
+      <a class="tarjeta" href="https://www.rockstargames.com/newswire/article/89834o94713o21" target="_blank" rel="noopener">
+        <div class="t-img"><img src="https://www.rockstargames.com/VI/_next/static/media/89834o94713o21.04n287k6o2lh9.jpg?akim=1&imdensity=1&imwidth=640" alt="" loading="lazy"></div>
+        <div class="t-txt"><small>10 nov 2026</small><b>Precarga ya Grand Theft Auto VI</b></div>
+      </a>
+      <a class="tarjeta" href="https://www.rockstargames.com/newswire/article/39ak81277255o9" target="_blank" rel="noopener">
+        <div class="t-img"><img src="https://www.rockstargames.com/VI/_next/static/media/39ak81277255o9.0lmk9f~r~10.x.jpg?akim=1&imdensity=1&imwidth=640" alt="" loading="lazy"></div>
+        <div class="t-txt"><small>5 nov 2026</small><b>Explora la galería del lanzamiento de Grand Theft Auto VI</b></div>
+      </a>
+      <a class="tarjeta" href="https://www.rockstargames.com/newswire/article/k4ak9okk485712" target="_blank" rel="noopener">
+        <div class="t-img"><img src="https://www.rockstargames.com/VI/_next/static/media/k4ak9okk485712.0cj_8hoskvfgy.jpg?akim=1&imdensity=1&imwidth=640" alt="" loading="lazy"></div>
+        <div class="t-txt"><small>3 nov 2026</small><b>La precarga de Grand Theft Auto VI comienza el 10 de noviembre</b></div>
+      </a>
+    </div>
+    <p class="nota nota-c">Imágenes, textos originales y audio: © Rockstar Games, cargados desde su web oficial.</p>
+  </section>
+</main>
+
+<div class="visor" id="visor" role="dialog" aria-modal="true" aria-label="Visor de fotos">
+  <div class="cine-barra">
+    <div class="cine-tit" id="visorTit"></div>
+    <button class="btn" id="visorFs" title="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="t">Pantalla completa</span></button>
+    <button class="btn cerrar" id="visorX" title="Cerrar (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="visor-foto" id="visorFoto">
+    <img id="visorImg" alt="">
+    <button class="btn flecha izq" id="visorAnt" title="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button class="btn flecha der" id="visorSig" title="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+  <div class="visor-pie"><b id="visorCuenta"></b><span>Desliza o usa las flechas</span></div>
 </div>
 
 <div class="cine" id="cine" role="dialog" aria-modal="true">
@@ -822,6 +1116,7 @@ function programa() {
 function musica() {
   audio(); ac.resume();
   sonando = !sonando;
+  if (sonando) radio.pause(); // no mezclar con la radio del juego
   master.gain.cancelScheduledValues(ac.currentTime);
   master.gain.linearRampToValueAtTime(sonando ? .5 : 0, ac.currentTime + .8);
   if (sonando) { sigNota = ac.currentTime + .1; prog = setInterval(programa, 50); }
@@ -863,6 +1158,7 @@ function abreVideo(i) {
     pantallaCompleta(cine, true); // el cine ocupa toda la pantalla nada más abrir un tráiler
   }
   if (sonando) musica();
+  radio.pause();
 
   try { player && player.destroy(); } catch (e) {} player = null;
   if (v.edad) return avisoCine(v, "Este tráiler solo se puede ver en YouTube",
@@ -915,11 +1211,212 @@ $("cineFs").onclick = () => pantallaCompleta(cine);
 $("pcBtn").onclick = () => pantallaCompleta(document.documentElement);
 if (!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)) $("pcBtn").style.display = "none";
 addEventListener("keydown", e => {
+  if (visor.classList.contains("abierto")) {
+    if (e.key === "Escape" && !document.fullscreenElement) cierraVisor();
+    if (e.key === "ArrowRight") muestraFoto(vI + 1);
+    if (e.key === "ArrowLeft") muestraFoto(vI - 1);
+    return;
+  }
   if (!cine.classList.contains("abierto")) { if (e.key === "f" || e.key === "F") pantallaCompleta(document.documentElement); return; }
   if (e.key === "Escape" && !document.fullscreenElement) cierraVideo();
   if (e.key === "ArrowRight") abreVideo(actual + 1);
   if (e.key === "ArrowLeft") abreVideo(actual - 1);
 });
+
+/* ===================== CONTENIDO OFICIAL DE ROCKSTAR ===================== */
+// Todo se carga desde la web oficial (rockstargames.com/VI). Los textos son resúmenes propios.
+const RS = "https://www.rockstargames.com/VI/_next/static/media/";
+const rs = (f, w) => RS + f + (w ? `?akim=1&imdensity=1&imwidth=${w}` : "");
+const escHtml = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+const PERSONAJES = [
+  { n: "Jason Duval", rol: "Protagonista", top: true,
+    d: "Creció entre estafadores, pasó por el ejército y acabó en los cayos haciendo trabajos para narcos. Quiere una vida tranquila, pero todo se le complica.",
+    f: ["Jason_Duval_01.07m377xeb6jhq.jpg", "Jason_Duval_02.1486~7_v40cn..jpg", "Jason_Duval_03.0-1vum7x-3vtp.jpg", "Jason_Duval_04.16d-z2wa2s~bk.jpg", "Jason_Duval_05.0kxp6enhvzqka.jpg", "Jason_Duval_06.086o72llg6~1p.jpg"] },
+  { n: "Lucía Caminos", rol: "Protagonista", top: true,
+    d: "Aprendió a pelear de niña y acabó en la cárcel de Leónida por defender a su familia. Ha salido con un plan y esta vez solo piensa tomar decisiones inteligentes.",
+    f: ["Lucia_Caminos_01.0a7yqvewctkfp.jpg", "Lucia_Caminos_02.16n.5umvlu_48.jpg", "Lucia_Caminos_03.14xgd2y_ymmeg.jpg", "Lucia_Caminos_04.04kb_~4ubn3wn.jpg", "Lucia_Caminos_05.0i5b7k6a7_w6p.jpg", "Lucia_Caminos_06.0fxbjfk0jakb3.jpg"] },
+  { n: "Cal Hampton", rol: "Amigo de Jason",
+    d: "Socio de Brian que prefiere quedarse en casa escuchando a la guardia costera y leyendo teorías en internet.",
+    f: ["Cal_Hampton_landscape.17k7bnt3myg.2.jpg", "Cal_Hampton_01.0xlil231_osh4.jpg", "Cal_Hampton_02.05r2t_mck65fe.jpg", "Cal_Hampton_03.0.q68~pt1to9z.jpg", "Cal_Hampton_04.0-78dep86yx2q.jpg"] },
+  { n: "Boobie Ike", rol: "Leyenda de Vice City",
+    d: "Pasó de la calle a tener inmuebles, un club y un estudio de grabación. Siempre sonríe, menos cuando se habla de negocios.",
+    f: ["Boobie_Ike_landscape.0ldnbn87k-8mq.jpg", "Boobie_Ike_01.0-wji2pg5anfs.jpg", "Boobie_Ike_02.0sp9mtc.1cdzs.jpg", "Boobie_Ike_03.0neka36~z25b5.jpg", "Boobie_Ike_04.0~1fr6ijgvnzx.jpg"] },
+  { n: "Dre'Quan Priest", rol: "Only Raw Records",
+    d: "Más buscavidas que gánster, siempre quiso vivir de la música. Lleva el sello con Boobie y acaba de fichar a Real Dimez.",
+    f: ["DreQuan_Priest_landscape.0_b7hszyze6cy.jpg", "DreQuan_Priest_01.0_0~wi-ipdj35.jpg", "DreQuan_Priest_02.02u69e~nkk3eo.jpg", "DreQuan_Priest_03.0zbl4i_x_1biu.jpg", "DreQuan_Priest_04.0n~kj~px_fn8t.jpg"] },
+  { n: "Real Dimez", rol: "Dúo de rap",
+    d: "Bae-Luxe y Roxy, amigas desde el instituto. Tuvieron un éxito viral hace años y buscan el siguiente con Only Raw Records.",
+    f: ["Real_Dimez_landscape.0637akp_a5a_q.jpg", "Real_Dimez_01.0djwwboo8-glx.jpg", "Real_Dimez_02.1366u9.x.yp0_.jpg", "Real_Dimez_03.02o2si7.op.ye.jpg", "Real_Dimez_04.0wa3vo07lz4e2.jpg"] },
+  { n: "Raúl Bautista", rol: "Atracador",
+    d: "Atracador de bancos veterano, con carisma y sangre fría, que siempre busca gente dispuesta a arriesgarse.",
+    f: ["Raul_Bautista_landscape.11_3hd0fr69~j.jpg", "Raul_Bautista_01.0md1ii-yrn96r.jpg", "Raul_Bautista_02.10ddy6ogywu-t.jpg", "Raul_Bautista_03.0-x4xbav_6c40.jpg", "Raul_Bautista_04.0qx77gyvykvv5.jpg"] },
+  { n: "Brian Heder", rol: "Contrabandista de los cayos",
+    d: "Narco de la vieja escuela que trafica desde su astillero con su tercera esposa, Lori. Le presta una casa a Jason a cambio de favores.",
+    f: ["Brian_Heder_landscape.0a-egj5b8yo1q.jpg", "Brian_Heder_01.0r.ute88os9k-.jpg", "Brian_Heder_02.0kmg6iw38f-9o.jpg", "Brian_Heder_03.10ntuqh2h6upf.jpg", "Brian_Heder_04.0z3o0t88jw54l.jpg"] },
+];
+
+// x, y: posición en el esquema del mapa · lx, ly, a: etiqueta
+const LUGARES = [
+  { n: "Vice City", lema: "Todo en exceso", f: "Vice_City_Postcard_landscape.0v2njmlk2n-qm.jpg", x: 348, y: 318, lx: 348, ly: 342, a: "middle",
+    d: "La gran ciudad de Leónida: hoteles art déco, la arena blanca de Ocean Beach, las panaderías de Little Cuba, el mercadillo de Tisha-Wocka y el mayor puerto de cruceros del mundo." },
+  { n: "Cayos de Leónida", lema: "La puerta al paraíso", f: "Leonida_Keys_Postcard_landscape.05oezf2h--~ed.jpg", x: 262, y: 396, lx: 262, ly: 426, a: "middle",
+    d: "Un archipiélago tropical sin lujos: tumbonas, bares llenos y ropa informal, a las puertas de las aguas más bonitas y peligrosas del país." },
+  { n: "Grassrivers", lema: "Los humedales", f: "Grassrivers_Postcard_landscape.15-10i39nhex2.jpg", x: 300, y: 300, lx: 286, ly: 304, a: "end",
+    d: "La parte más salvaje de Leónida. Los caimanes son lo más famoso, pero entre los manglares hay cosas mucho más peligrosas." },
+  { n: "Port Gellhorn", lema: "La costa olvidada", f: "Port_Gellhorn_Postcard_landscape.176c2o75nmcr8.jpg", x: 92, y: 102, lx: 92, ly: 132, a: "middle",
+    d: "Un antiguo destino de vacaciones venido a menos: moteles baratos, atracciones cerradas y centros comerciales vacíos. Mejor no perder de vista la cartera." },
+  { n: "Ambrosía", lema: "El corazón de Leónida", f: "Ambrosia_Postcard_landscape.0gd~9a41ia-rt.jpg", x: 296, y: 222, lx: 282, ly: 226, a: "end",
+    d: "Pueblo de industria y valores de toda la vida. La refinería de azúcar Allied Crystal da trabajo y una banda de moteros controla casi todo lo demás." },
+  { n: "Monte Kalaga", lema: "Una tierra muy salvaje", f: "Mount_Kalaga_National_Park_Postcard_landscape.0c1cb4ocq16n3.jpg", x: 262, y: 86, lx: 274, ly: 90, a: "start",
+    d: "Parque nacional junto a la frontera norte, con caza, pesca y caminos de tierra. En sus bosques vive gente que prefiere tener al Gobierno bien lejos." },
+];
+
+const ZONA = { Jason_and_Lucia: ["Jason y Lucía", "jl"], Jason_Duval: ["Jason", "jl"], Lucia_Caminos: ["Lucía", "jl"], Vice_City: ["Vice City", "vc"],
+  Port_Gellhorn: ["Port Gellhorn", "leo"], Leonida_Keys: ["Cayos de Leónida", "leo"], Grassrivers: ["Grassrivers", "leo"] };
+const CAPTURAS = ["Jason_and_Lucia_14.10e7v.06pcm_t.jpg", "Jason_and_Lucia_15.0m-_zb~mcy2zr.jpg", "Vice_City_15.11tb0mz68edqo.jpg", "Vice_City_13.0iq8ff474tsdx.jpg",
+  "Lucia_Caminos_11.0j617-ylicowx.jpg", "Jason_and_Lucia_16.05-d133mx68ku.jpg", "Jason_Duval_11.019l5gj6~0~0v.jpg", "Port_Gellhorn_07.053ldlg0m.2r..jpg",
+  "Vice_City_16.16hjjmnxqg9mv.jpg", "Jason_and_Lucia_17.117_b11r13mg5.jpg", "Vice_City_17.0er79m2u3nygs.jpg", "Vice_City_18.001ebutl6h-9w.jpg",
+  "Vice_City_20.18c75478u52nf.jpg", "Vice_City_19.01ow62.xq.64i.jpg", "Jason_Duval_12.0zcl2old.t6gf.jpg", "Lucia_Caminos_12.0saq9ns-~xj03.jpg",
+  "Vice_City_21.0m5vh15h178-e.jpg", "Jason_and_Lucia_20.0cd~.c7jr~5g9.jpg", "Jason_Duval_13.0xtzlmp0y6mt-.jpg", "Vice_City_22.0--9jlb822n~g.jpg",
+  "Vice_City_23.183sae.altxv3.jpg", "Jason_Duval_14.0eczq557_iuqo.jpg", "Lucia_Caminos_13.08dd3_zn0g59u.jpg", "Jason_and_Lucia_18.0kjv.et7330m_.jpg",
+  "Jason_Duval_15.0oze53sounjp2.jpg", "Jason_and_Lucia_19.0n_.5s-v~v5je.jpg", "Vice_City_24.0r9tor5-x.p75.jpg", "Jason_Duval_16.090yj-lyddyrr.jpg",
+  "Leonida_Keys_07.0z9tb69ssp4rq.jpg", "Vice_City_25.0f72z-5qgyd~v.jpg", "Jason_Duval_17.0tp7hiuz.e385.jpg", "Lucia_Caminos_14.0.6_io7qeozm6.jpg",
+  "Grassrivers_07.0txitddjiq5o1.jpg", "Vice_City_26.0.bvvu2216_mj.jpg", "Jason_Duval_19.0r7a1q04n5.7m.jpg", "Vice_City_14.0fu8u9jh5hkg7.jpg",
+  "Jason_Duval_18.000.jk1plncsr.jpg", "Grassrivers_08.0x-z0h-he35zo.jpg", "Vice_City_27.0d2e~w_r93hmh.jpg"];
+const ARTE = [
+  ["Official_Cover_Art_landscape.12.uu2irr.2_a.jpg", "Portada oficial"],
+  ["Jason_Lucia_Rooftop_landscape.0c6p5do~-8~7..jpg", "Jason y Lucía en una azotea"],
+  ["Jason_Lucia_Lock_And_Load_landscape.0l9s5w7ih9p~3.jpg", "Jason y Lucía, armados"],
+  ["Jason_and_Lucia_Robbery_landscape.09c8a~do21h4p.jpg", "El atraco"],
+  ["Jason_and_Lucia_Beach_landscape.0419q._86ukpt.jpg", "Jason y Lucía en la playa"],
+  ["Jason_and_Lucia_Motel_landscape.08edvuwtm-20v.jpg", "Jason y Lucía en el motel"],
+  ["Jason_and_Lucia_01_landscape.12x2gvspcm_3m.jpg", "Arte del Tráiler 1"],
+  ["Jason_and_Lucia_02_landscape.0cosv-uzbpt91.jpg", "Arte del Tráiler 2"],
+  ["The_Album_Cover_Art_landscape.000ifb9a.j-gp.jpg", "Portada de The Album"],
+];
+const GALERIA = [
+  ...CAPTURAS.map(f => { const k = Object.keys(ZONA).find(z => f.startsWith(z + "_")); return { f, t: ZONA[k][0] + " · galería del lanzamiento", c: ZONA[k][1] }; }),
+  ...ARTE.map(([f, t]) => ({ f, t: t + " · arte oficial", c: "arte" })),
+];
+const FILTROS = [["todo", "Todo"], ["jl", "Jason y Lucía"], ["vc", "Vice City"], ["leo", "Resto de Leónida"], ["arte", "Arte oficial"]];
+
+const RADIOS = [
+  { n: "Cocoteo FM", d: "Música latina actual con El Martillo y La Gata", logo: "cocoteo-logo.0f_q~~9u45zf5.png", fondo: "cocoteo-background.0~6dq9w0~ac7f.jpg", mp3: "CocoTeo%20FM.0n-4zp0t4l~if.mp3" },
+  { n: "Back Country", d: "Country rebelde con MW y Delta Dawne", logo: "country-logo.0_u9b8toxgaqe.png", fondo: "country-background.0dgx5dx.44v.x.jpg", mp3: "Back%20Country%20Radio.08cmgjn3.p-j_.mp3" },
+  { n: "AfroBank FM", d: "Amapiano y clásicos africanos con Burna y Palmsy", logo: "afrobank-logo.0r-.t_v9b~9l_.png", fondo: "afrobank-background.140-_kytq55lt.jpg", mp3: "Afrobank.0rtmh0bm33.ky.mp3" },
+  { n: "The Chamber", d: "Metal del duro con DJ Kerry y DJ Tom", logo: "chamber-logo.039x21cy5jsiv.png", fondo: "chamber-background.0bdn5.jnvwos2.jpg", mp3: "The%20Chamber%20106.6.11_iey2p6kb55.mp3" },
+  { n: "Flash FM", d: "El pop de siempre de Vice City con Robyn y Alex", logo: "flash-logo.04o~oki.8dgm0.png", fondo: "flash-background.0tc3kakjq4vi6.jpg", mp3: "Flash%20FM.059xksp1t-k7h.mp3" },
+  { n: "Dirty South Classics", d: "Rap del sur y clásicos del hip-hop con Trick y Trina", logo: "dirty-south-logo.0oparlmygi1zd.png", fondo: "dirty-south-background.05~e07omgorbi.jpg", mp3: "Dirty%20South%20Classics.11o18zry-5mp7.mp3" },
+];
+
+/* ---- Visor de fotos a pantalla completa ---- */
+const visor = $("visor"), visorImg = $("visorImg");
+let vLista = [], vI = 0;
+function abreVisor(lista, i) {
+  vLista = lista;
+  if (!visor.classList.contains("abierto")) { visor.classList.add("abierto"); document.documentElement.style.overflow = "hidden"; }
+  muestraFoto(i);
+}
+function muestraFoto(i) {
+  vI = (i + vLista.length) % vLista.length;
+  const it = vLista[vI];
+  visorImg.src = rs(it.f, 640); visorImg.alt = it.t; // primero la miniatura (ya está en caché)...
+  $("visorTit").textContent = it.t;
+  $("visorCuenta").textContent = `${vI + 1} / ${vLista.length}`;
+  const ancho = (innerWidth * (devicePixelRatio || 1)) > 1920 ? 2560 : 1920;
+  const hi = new Image();
+  hi.onload = () => { if (vLista[vI] === it) visorImg.src = hi.src; }; // ...y luego la grande
+  hi.src = rs(it.f, ancho);
+  for (const d of [1, -1]) new Image().src = rs(vLista[(vI + d + vLista.length) % vLista.length].f, 640);
+}
+function cierraVisor() {
+  visor.classList.remove("abierto"); document.documentElement.style.overflow = "";
+  if ((document.fullscreenElement || document.webkitFullscreenElement) === visor) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+}
+$("visorX").onclick = cierraVisor;
+$("visorAnt").onclick = () => muestraFoto(vI - 1);
+$("visorSig").onclick = () => muestraFoto(vI + 1);
+$("visorFs").onclick = () => pantallaCompleta(visor);
+let toqueX = null;
+$("visorFoto").addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") toqueX = e.clientX; });
+$("visorFoto").addEventListener("pointerup", e => {
+  if (toqueX === null) return;
+  const dx = e.clientX - toqueX; toqueX = null;
+  if (Math.abs(dx) > 50) muestraFoto(vI + (dx < 0 ? 1 : -1));
+});
+
+/* ---- Personajes ---- */
+const fotosDe = p => p.f.map((f, k) => ({ f, t: `${p.n} · ${k + 1} de ${p.f.length}` }));
+function cartaPj(p, i) {
+  return `<button class="boton-carta pj" data-i="${i}" aria-label="Ver fotos de ${p.n}">
+    <div class="pj-foto"><img src="${rs(p.f[0], p.top ? 960 : 640)}" alt="" loading="lazy"><span class="cuenta">${p.f.length} fotos</span></div>
+    <div class="pj-txt"><span class="rol">${p.rol}</span><b>${escHtml(p.n)}</b><p>${p.d}</p></div>
+  </button>`;
+}
+$("pjTop").innerHTML = PERSONAJES.map((p, i) => p.top ? cartaPj(p, i) : "").join("");
+$("pjGrid").innerHTML = PERSONAJES.map((p, i) => p.top ? "" : cartaPj(p, i)).join("");
+for (const id of ["pjTop", "pjGrid"]) $(id).addEventListener("click", e => {
+  const b = e.target.closest(".pj"); if (b) abreVisor(fotosDe(PERSONAJES[b.dataset.i]), 0);
+});
+
+/* ---- Leónida: mapa y postales ---- */
+$("pines").innerHTML = LUGARES.map((l, i) => `<g class="pin" data-i="${i}" tabindex="0" role="button" aria-label="${l.n}">
+  <circle class="onda" cx="${l.x}" cy="${l.y}" r="9"/><circle class="punto" cx="${l.x}" cy="${l.y}" r="7"/>
+  <text x="${l.lx}" y="${l.ly}" text-anchor="${l.a}">${l.n}</text></g>`).join("");
+$("postales").innerHTML = LUGARES.map((l, i) => `<button class="postal" data-i="${i}"><img src="${rs(l.f, 480)}" alt="" loading="lazy"><span>${l.n}</span></button>`).join("");
+const POSTALES = LUGARES.map(l => ({ f: l.f, t: `${l.n} · postal oficial` }));
+let lugarI = 0;
+function eligeLugar(i) {
+  lugarI = i; const l = LUGARES[i];
+  $("lugarImg").innerHTML = `<img src="${rs(l.f, 1280)}" alt="Postal oficial de ${l.n}">`;
+  $("lugarLema").textContent = l.lema; $("lugarNom").textContent = l.n; $("lugarDesc").textContent = l.d;
+  document.querySelectorAll("#pines .pin").forEach((p, k) => p.classList.toggle("on", k === i));
+  document.querySelectorAll("#postales .postal").forEach((p, k) => p.classList.toggle("on", k === i));
+}
+$("pines").addEventListener("click", e => { const p = e.target.closest(".pin"); if (p) eligeLugar(Number(p.dataset.i)); });
+$("pines").addEventListener("keydown", e => { const p = e.target.closest(".pin"); if (p && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); eligeLugar(Number(p.dataset.i)); } });
+$("postales").addEventListener("click", e => { const p = e.target.closest(".postal"); if (p) eligeLugar(Number(p.dataset.i)); });
+$("lugarImg").addEventListener("click", () => abreVisor(POSTALES, lugarI));
+$("lugarImg").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abreVisor(POSTALES, lugarI); } });
+eligeLugar(0);
+
+/* ---- Galería ---- */
+let filtroActual = "todo", galeriaVista = GALERIA;
+$("filtros").innerHTML = FILTROS.map(([k, t]) => `<button class="filtro${k === "todo" ? " on" : ""}" data-k="${k}">${t}<small>${k === "todo" ? GALERIA.length : GALERIA.filter(g => g.c === k).length}</small></button>`).join("");
+function pintaGaleria() {
+  galeriaVista = filtroActual === "todo" ? GALERIA : GALERIA.filter(g => g.c === filtroActual);
+  $("fotos").innerHTML = galeriaVista.map((g, i) => `<button class="foto" data-i="${i}" aria-label="${g.t}"><img src="${rs(g.f, 480)}" alt="" loading="lazy"><span>${g.t.split(" · ")[0]}</span></button>`).join("");
+}
+$("filtros").addEventListener("click", e => {
+  const b = e.target.closest(".filtro"); if (!b) return;
+  filtroActual = b.dataset.k;
+  document.querySelectorAll(".filtro").forEach(x => x.classList.toggle("on", x === b));
+  pintaGaleria();
+});
+$("fotos").addEventListener("click", e => { const b = e.target.closest(".foto"); if (b) abreVisor(galeriaVista, Number(b.dataset.i)); });
+pintaGaleria();
+
+/* ---- Radio ---- */
+const radio = new Audio(); radio.preload = "none";
+let radioI = -1;
+$("radios").innerHTML = RADIOS.map((r, i) => `<button class="radio" data-i="${i}" aria-label="Escuchar el adelanto de ${r.n}">
+  <span class="radio-fondo" style="background-image:url('${rs(r.fondo, 640)}')"></span>
+  <img class="radio-logo" src="${rs(r.logo, 320)}" alt="" loading="lazy">
+  <span class="radio-txt"><b>${r.n}</b><small>${r.d}</small></span>
+  <span class="radio-play"><svg class="ico-play" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l15 8-15 8z"/></svg><svg class="ico-pausa" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></span>
+  <span class="radio-barra"><i></i></span></button>`).join("");
+const cartasRadio = [...$("radios").children];
+function ponRadio(i) {
+  if (radioI === i && !radio.paused) { radio.pause(); return; }
+  if (radioI !== i) { radio.src = RS + RADIOS[i].mp3; radioI = i; cartasRadio.forEach(c => c.querySelector(".radio-barra i").style.width = "0"); }
+  if (sonando) musica(); // apaga la música synthwave para que no se mezclen
+  radio.play().catch(() => {});
+}
+function pintaRadio() { cartasRadio.forEach((c, k) => c.classList.toggle("on", k === radioI && !radio.paused)); }
+radio.addEventListener("play", pintaRadio); radio.addEventListener("pause", pintaRadio); radio.addEventListener("ended", pintaRadio);
+radio.addEventListener("timeupdate", () => { if (radioI >= 0 && radio.duration) cartasRadio[radioI].querySelector(".radio-barra i").style.width = (radio.currentTime / radio.duration * 100) + "%"; });
+$("radios").addEventListener("click", e => { const b = e.target.closest(".radio"); if (b) ponRadio(Number(b.dataset.i)); });
 
 /* ===================== ARRANQUE ===================== */
 preparar();
