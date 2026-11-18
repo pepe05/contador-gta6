@@ -447,7 +447,7 @@ const TANDAS = [
 const VIDEOS = [
   { id: "QdBZY2fkU-0", n: "TRÁILER 1",   t: "Trailer 1",        d: "Rockstar Games · diciembre 2023" },
   { id: "QiIebY4wmWg", n: "TRÁILER 2",   t: "Tráiler 2",        d: "Rockstar Games España" },
-  { id: "tJbzMqJGH4k", n: "TRÁILER 3",   t: "An Extended Look", d: "Rockstar Games · versión extendida" },
+  { id: "tJbzMqJGH4k", n: "TRÁILER 3",   t: "An Extended Look", d: "+18 en YouTube · solo se puede ver allí", edad: true },
   { id: "rz1B4B2yBZY", n: "LANZAMIENTO", t: "Launch Trailer",   d: "Rockstar Games · tráiler de salida", nuevo: true },
 ];
 
@@ -862,21 +862,34 @@ function abreVideo(i) {
   }
   if (sonando) musica();
 
-  if (local) { // YouTube no deja reproducir dentro de un archivo abierto desde el disco (error 153)
-    $("cineMarco").innerHTML = `<div class="cine-aviso" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')">
-      <h4>Abre la versión online para verlo aquí</h4>
-      <p>YouTube no permite reproducir vídeos dentro de un archivo abierto desde el ordenador o el móvil. Desde la versión publicada en internet se ve aquí mismo, sin recomendados.</p>
-      <a class="btn grande" href="https://youtu.be/${v.id}" target="_blank" rel="noopener">Ver en YouTube ↗</a></div>`;
-    return;
-  }
+  try { player && player.destroy(); } catch (e) {} player = null;
+  if (v.edad) return avisoCine(v, "Este tráiler solo se puede ver en YouTube",
+    "YouTube lo tiene marcado para mayores de 18, y esos vídeos no se pueden reproducir fuera de su web (hay que iniciar sesión con una cuenta de adulto). Los otros tres tráileres se ven aquí mismo.");
+  if (local) return avisoCine(v, "Abre la versión online para verlo aquí", // YouTube no reproduce dentro de un archivo abierto desde el disco (error 153)
+    "YouTube no permite reproducir vídeos dentro de un archivo abierto desde el ordenador o el móvil. Desde la versión publicada en internet se ve aquí mismo, sin recomendados.");
   $("cineMarco").innerHTML = '<div id="ytp"></div>';
+  const pedido = actual;
   cargaApi().then(() => {
+    if (pedido !== actual || !cine.classList.contains("abierto")) return; // se cambió de vídeo mientras cargaba
     player = new YT.Player("ytp", {
       videoId: v.id, host: "https://www.youtube-nocookie.com",
       playerVars: { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1, fs: 1, iv_load_policy: 3, origin: location.origin },
-      events: { onStateChange: e => { if (e.data === 0 && maraton && actual < VIDEOS.length - 1) abreVideo(actual + 1); } }
+      events: {
+        onStateChange: e => { if (e.data === 0 && maraton) { const s = siguienteVisible(actual); if (s !== null) abreVideo(s); } },
+        onError: e => { if ([100, 101, 150, 153].includes(e.data)) avisoCine(v, "Este tráiler no se puede ver aquí", "YouTube no deja reproducir este vídeo fuera de su web."); }
+      }
     });
   });
+}
+function avisoCine(v, titulo, texto) {
+  try { player && player.destroy(); } catch (e) {} player = null;
+  $("cineMarco").innerHTML = `<div class="cine-aviso" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')">
+    <h4>${titulo}</h4><p>${texto}</p>
+    <a class="btn grande" href="https://youtu.be/${v.id}" target="_blank" rel="noopener">Ver en YouTube ↗</a></div>`;
+}
+function siguienteVisible(i) { // en el maratón se salta el que solo va en YouTube
+  for (let k = i + 1; k < VIDEOS.length; k++) if (!VIDEOS[k].edad) return k;
+  return null;
 }
 function cierraVideo() {
   cine.classList.remove("abierto"); maraton = false;
@@ -892,7 +905,7 @@ function pantallaCompleta(el, soloEntrar) {
   try { screen.orientation.lock("landscape").catch(() => {}); } catch (e) {}
 }
 $("vids").addEventListener("click", e => { const a = e.target.closest(".vid"); if (!a) return; e.preventDefault(); maraton = false; abreVideo(Number(a.dataset.i)); });
-$("maraton").onclick = () => { maraton = true; abreVideo(0); };
+$("maraton").onclick = () => { maraton = true; abreVideo(VIDEOS[0].edad ? siguienteVisible(0) : 0); };
 $("cineX").onclick = cierraVideo;
 $("cineAnt").onclick = () => abreVideo(actual - 1);
 $("cineSig").onclick = () => abreVideo(actual + 1);
