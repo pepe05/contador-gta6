@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0220">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>GTA VI · Cuenta atrás</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rosa: #ff2a8a; --naranja: #ff8a3d; --oro: #ffd36b; --cian: #00f0ff; --violeta: #8b3dff; --verde: #2bff9e;
+  --fondo: #0a0220;
+  --h: clamp(78px, 22vw, 150px);           /* alto de cada ficha */
+}
+@media (min-width: 900px) { :root { --h: clamp(150px, 12.5vw, 230px); } }
+@media (min-width: 900px) and (max-height: 760px) { :root { --h: clamp(120px, 20vh, 170px); } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { background: var(--fondo); scroll-behavior: smooth; }
+body {
+  font-family: "Space Grotesk", -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #fff; text-align: center; overflow-x: hidden;
+  -webkit-user-select: none; user-select: none;
+}
+img { display: block; }
+canvas#fondo, canvas#fuegos { position: fixed; inset: 0; width: 100%; height: 100%; }
+canvas#fondo { z-index: 0; }
+canvas#fuegos { z-index: 30; pointer-events: none; }
+.scan { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 1px, transparent 1px 4px); }
+.vineta { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at 50% 38%, transparent 48%, rgba(4,0,14,.75) 100%); transition: background 1s; }
+body.final .vineta { background: radial-gradient(ellipse at 50% 40%, rgba(255,0,60,.06) 30%, rgba(110,0,25,.85) 100%); animation: latido 1s infinite; }
+@keyframes latido { 0%,100% { opacity: .7 } 12% { opacity: 1 } }
+.flash { position: fixed; inset: 0; z-index: 29; pointer-events: none; background: #fff; opacity: 0; }
+body.listo .flash { animation: flash 1.2s ease-out; }
+@keyframes flash { 0% { opacity: .95 } 100% { opacity: 0 } }
+
+/* ===== Botones flotantes ===== */
+.btn {
+  height: 42px; min-width: 42px; padding: 0 14px; border-radius: 13px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  background: rgba(10,2,30,.55); border: 1px solid rgba(255,255,255,.18); color: #fff;
+  font: 700 13px "Space Grotesk", sans-serif; text-decoration: none;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  transition: background .2s, border-color .2s, box-shadow .2s, transform .15s;
+}
+.btn:hover { background: rgba(255,42,138,.22); border-color: var(--rosa); box-shadow: 0 0 18px rgba(255,42,138,.4); }
+.btn:active { transform: scale(.95); }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn.on { border-color: var(--cian); box-shadow: 0 0 16px rgba(0,240,255,.45); color: #b9faff; }
+.flotantes { position: fixed; z-index: 15; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 14px; display: flex; justify-content: space-between; pointer-events: none; }
+.flotantes .btn { pointer-events: auto; }
+@media (max-width: 600px) { .btn .t { display: none; } }
+
+/* ===== HERO ===== */
+.hero {
+  position: relative; z-index: 2; min-height: 100vh; min-height: 100svh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: max(70px, calc(env(safe-area-inset-top) + 60px)) 12px 96px; gap: clamp(10px, 2.2vh, 22px);
+}
+.tag {
+  font-weight: 700; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #b9faff;
+  padding: 8px 16px; border-radius: 999px; display: inline-flex; align-items: center; gap: 9px;
+  border: 1px solid rgba(0,240,255,.5); background: rgba(5,0,25,.5);
+  box-shadow: 0 0 16px rgba(0,240,255,.3), inset 0 0 10px rgba(0,240,255,.12);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: baja .9s cubic-bezier(.2,.9,.3,1.3) both;
+}
+.tag .punto { width: 8px; height: 8px; border-radius: 50%; background: #ff2a55; box-shadow: 0 0 10px #ff2a55; animation: parpadeo 1.2s infinite; }
+@keyframes parpadeo { 50% { opacity: .2 } }
+
+.logo {
+  position: relative; font-family: "Anton", Impact, sans-serif; font-style: italic;
+  font-size: clamp(84px, 27vw, 230px); line-height: .84; letter-spacing: -1px;
+  transform: skewX(-9deg); animation: entraLogo 1.2s .1s cubic-bezier(.2,.9,.3,1.15) both;
+}
+@media (min-width: 900px) and (max-height: 760px) { .logo { font-size: clamp(90px, 22vh, 170px); } }
+.logo .g {
+  display: block; position: relative;
+  background: linear-gradient(180deg, #fff7d1 0%, var(--oro) 20%, var(--naranja) 45%, var(--rosa) 70%, var(--violeta) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 22px rgba(255,42,138,.55)) drop-shadow(0 7px 0 rgba(40,0,70,.95));
+}
+.logo .g::after { /* destello que recorre el logo */
+  content: "GTA VI"; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.95) 50%, transparent 60%);
+  background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: barrido 5s 1.5s infinite;
+}
+@keyframes barrido { 0% { background-position: 150% 0 } 30%,100% { background-position: -100% 0 } }
+.logo::before, .logo::after { content: "GTA VI"; position: absolute; inset: 0; pointer-events: none; opacity: 0; -webkit-text-stroke: 1.5px currentColor; color: transparent; }
+.logo::before { color: var(--cian); animation: glitch1 6s infinite; }
+.logo::after  { color: var(--rosa); animation: glitch2 6s infinite; }
+@keyframes glitch1 { 0%,94%,100% { opacity: 0; transform: none } 95% { opacity: .9; transform: translate(-7px, 2px) } 96.5% { opacity: .9; transform: translate(4px,-3px) } 97.5% { opacity: 0 } }
+@keyframes glitch2 { 0%,94%,100% { opacity: 0; transform: none } 95.5% { opacity: .9; transform: translate(7px,-2px) } 97% { opacity: .9; transform: translate(-3px, 3px) } 98% { opacity: 0 } }
+@keyframes entraLogo { from { opacity: 0; transform: skewX(-9deg) scale(1.5); filter: blur(14px) } to { transform: skewX(-9deg) } }
+
+.frase {
+  display: flex; align-items: center; gap: 14px;
+  font-weight: 700; font-size: clamp(12px, 3.4vw, 18px); letter-spacing: clamp(4px, 1.4vw, 9px); text-transform: uppercase;
+  color: #ffe3f2; text-shadow: 0 0 8px var(--rosa), 0 0 22px var(--rosa);
+  animation: entra 1s .3s both;
+}
+.frase::before, .frase::after { content: ""; height: 2px; width: clamp(24px, 8vw, 90px); background: linear-gradient(90deg, transparent, var(--rosa)); box-shadow: 0 0 10px var(--rosa); }
+.frase::after { transform: scaleX(-1); }
+
+/* ===== Reloj de fichas (split-flap) ===== */
+.reloj { display: flex; align-items: flex-start; justify-content: center; gap: clamp(6px, 1.8vw, 26px); animation: entra 1s .45s both; perspective: 1200px; }
+.grupo { display: flex; flex-direction: column; align-items: center; gap: 10px; transition: transform .3s; }
+.par { display: flex; gap: clamp(4px, 1vw, 10px); }
+.ficha {
+  --c: var(--rosa);
+  position: relative; width: calc(var(--h) * .66); height: var(--h); perspective: 600px;
+  font-family: "Anton", Impact, sans-serif; font-size: calc(var(--h) * .8); color: #fff;
+  filter: drop-shadow(0 12px 20px rgba(0,0,0,.55));
+}
+.grupo.seg .ficha { --c: var(--cian); }
+.ficha .m {
+  position: absolute; left: 0; right: 0; height: 50%; overflow: hidden;
+  background: linear-gradient(180deg, rgba(70,14,105,.92), rgba(28,5,58,.95));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.13);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+/* Cada mitad lleva el dígito entero (alto = ficha) anclado arriba o abajo, así las dos mitades casan al píxel */
+.ficha .m span { position: absolute; left: 0; right: 0; top: 0; height: var(--h); line-height: var(--h); text-shadow: 0 0 calc(var(--h) * .07) var(--c), 0 0 calc(var(--h) * .18) var(--c); }
+.ficha .ar, .ficha .gs { top: 0; border-radius: calc(var(--h) * .1) calc(var(--h) * .1) 0 0; }
+.ficha .ab, .ficha .gi { bottom: 0; border-radius: 0 0 calc(var(--h) * .1) calc(var(--h) * .1);
+  background: linear-gradient(180deg, rgba(36,7,72,.95), rgba(18,3,40,.97)); }
+.ficha .ab span, .ficha .gi span { top: auto; bottom: 0; }
+.ficha .ar::after, .ficha .gs::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.1), transparent 70%); pointer-events: none; }
+/* Sombra que acompaña al giro (en vez de filter, que en 3D da tirones) */
+.ficha .m::before { content: ""; position: absolute; inset: 0; z-index: 1; background: #05010f; opacity: 0; pointer-events: none; }
+.ficha .gs { transform-origin: 50% 100%; z-index: 2; visibility: hidden; }
+.ficha .gi { transform-origin: 50% 0; z-index: 2; transform: rotateX(90deg); visibility: hidden; }
+.ficha.gira .gs, .ficha.gira .gi { visibility: visible; }
+.ficha.gira .gs { animation: giraA .24s cubic-bezier(.55,0,.9,.4) forwards; }
+.ficha.gira .gi { animation: giraB .3s .24s cubic-bezier(.2,.9,.35,1.25) both; }
+.ficha.gira .gs::before { animation: osc .24s ease-in forwards; }
+.ficha.gira .gi::before { animation: aclara .3s .24s ease-out both; }
+.ficha.gira .ar::before { animation: aclara .24s ease-in both; }
+.ficha.gira .ab::before { animation: tapa .54s ease-in-out; }
+@keyframes giraA { from { transform: rotateX(0) } to { transform: rotateX(-90deg) } }
+@keyframes giraB { from { transform: rotateX(90deg) } to { transform: rotateX(0) } }
+@keyframes osc { to { opacity: .55 } }
+@keyframes aclara { from { opacity: .5 } to { opacity: 0 } }
+@keyframes tapa { 0%, 100% { opacity: 0 } 45% { opacity: .4 } }
+.ficha::before { /* bisagra */
+  content: ""; position: absolute; z-index: 3; left: -2px; right: -2px; top: calc(50% - 1px); height: 2px;
+  background: linear-gradient(90deg, #000, rgba(0,0,0,.85) 8%, rgba(0,0,0,.85) 92%, #000);
+}
+.ficha::after { /* marco de neón */
+  content: ""; position: absolute; inset: -1px; border-radius: calc(var(--h) * .1); pointer-events: none;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), 0 0 calc(var(--h) * .2) color-mix(in srgb, var(--c) 35%, transparent);
+}
+.lbl {
+  font-size: clamp(10px, 2.6vw, 13px); font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,255,255,.85);
+  padding: 4px 12px 4px 16px; border-radius: 99px; background: rgba(5,0,20,.55); border: 1px solid rgba(255,255,255,.1);
+}
+.sep { display: flex; flex-direction: column; justify-content: center; gap: calc(var(--h) * .2); height: var(--h); }
+.sep i { display: block; width: calc(var(--h) * .07); height: calc(var(--h) * .07); border-radius: 50%; background: var(--oro); box-shadow: 0 0 12px var(--naranja), 0 0 26px var(--naranja); animation: sep 1s steps(1) infinite; }
+@keyframes sep { 50% { opacity: .2 } }
+
+/* ===== Panel de información ===== */
+.info {
+  display: grid; grid-template-columns: 1fr; gap: 10px; width: min(94vw, 1000px); margin-top: 6px;
+  animation: entra 1s .65s both;
+}
+@media (min-width: 760px) { .info { grid-template-columns: 1fr 1.3fr 1fr; } }
+.chip {
+  padding: 14px 18px; border-radius: 18px; text-align: left;
+  background: linear-gradient(160deg, rgba(40,8,70,.6), rgba(8,1,24,.7)); border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 84px;
+}
+.chip small { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); font-weight: 700; }
+.chip b { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.chip .dim { font-size: 12px; color: rgba(255,255,255,.6); }
+.chip .oro { color: var(--oro); text-shadow: 0 0 10px var(--naranja); }
+.chip .cian { color: var(--cian); text-shadow: 0 0 10px var(--cian); font-variant-numeric: tabular-nums; }
+.barra { position: relative; height: 12px; border-radius: 99px; overflow: hidden; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); margin: 6px 0 2px; }
+.barra i { position: absolute; inset: 0 auto 0 0; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--violeta), var(--rosa), var(--naranja), var(--oro)); box-shadow: 0 0 16px var(--rosa); transition: width .8s ease; }
+.barra i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent); background-size: 40% 100%; background-repeat: no-repeat; animation: brillo 2.2s infinite; }
+@keyframes brillo { from { background-position: -60% 0 } to { background-position: 160% 0 } }
+.fila-barra { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.55); }
+.flag { width: 26px; height: 18px; border-radius: 4px; object-fit: cover; box-shadow: 0 0 0 1px rgba(255,255,255,.2); flex: none; }
+
+.bajar {
+  position: absolute; bottom: max(18px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  color: rgba(255,255,255,.75); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; text-decoration: none;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; animation: flota 2s infinite ease-in-out; white-space: nowrap;
+}
+.bajar svg { width: 22px; height: 22px; }
+@keyframes flota { 50% { transform: translate(-50%, 6px) } }
+
+/* Fases finales */
+body.ultima .grupo:not(.seg) .ficha { --c: #ff3b3b; }
+body.ultima .grupo.seg .ficha { --c: #ffb347; }
+body.ultima .frase { text-shadow: 0 0 8px #ff3b3b, 0 0 22px #ff0040; }
+body.final .reloj { animation: tiembla .1s infinite; }
+@keyframes tiembla { 0% { transform: translate(0,0) } 25% { transform: translate(1.5px,-1px) } 50% { transform: translate(-1.5px,1px) } 75% { transform: translate(1px,1.5px) } }
+.ya { display: none; font-family: "Anton", sans-serif; font-style: italic; font-size: clamp(60px, 17vw, 190px); line-height: .9; transform: skewX(-9deg); }
+.ya span { background: linear-gradient(180deg, #fff, var(--oro), var(--rosa)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 26px var(--rosa)); }
+body.listo .ya { display: block; animation: grito .5s infinite alternate ease-in-out; }
+body.listo .reloj, body.listo .frase { display: none; }
+@keyframes grito { from { transform: skewX(-9deg) scale(1) } to { transform: skewX(-9deg) scale(1.07) } }
+
+@keyframes entra { from { opacity: 0; transform: translateY(26px) scale(.96) } }
+@keyframes baja { from { opacity: 0; transform: translateY(-20px) } }
+
+/* ===== Avisos (toasts) ===== */
+.avisos { position: fixed; z-index: 25; left: 50%; transform: translateX(-50%); top: max(66px, calc(env(safe-area-inset-top) + 60px)); display: flex; flex-direction: column; gap: 8px; pointer-events: none; width: min(92vw, 420px); }
+.aviso {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 16px; text-align: left;
+  background: rgba(8,1,24,.88); border: 1px solid rgba(43,255,158,.55); box-shadow: 0 0 30px rgba(43,255,158,.3), 0 14px 40px rgba(0,0,0,.6);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  animation: avisoIn .5s cubic-bezier(.2,.9,.3,1.3) both, avisoOut .5s 5.5s ease-in forwards;
+}
+.aviso .flag { width: 34px; height: 24px; }
+.aviso b { display: block; font-size: 15px; }
+.aviso small { font-size: 12px; color: #9dffd2; }
+@keyframes avisoIn { from { opacity: 0; transform: translateY(-20px) scale(.9) } }
+@keyframes avisoOut { to { opacity: 0; transform: translateY(-14px) scale(.95) } }
+
+/* ===== Secciones inferiores ===== */
+.extra { position: relative; z-index: 2; padding: 10px 12px max(40px, env(safe-area-inset-bottom)); display: grid; gap: 20px; }
+@media (min-width: 900px) { .extra { max-width: 1440px; margin: 0 auto; padding: 20px 32px 60px; grid-template-columns: 1.5fr 1fr; gap: 28px; align-items: start; } }
+.panel {
+  padding: 24px 16px 18px; border-radius: 26px; text-align: center;
+  background: linear-gradient(170deg, rgba(30,6,56,.82), rgba(8,1,24,.86)); border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 70px rgba(0,0,0,.6), 0 0 50px rgba(139,61,255,.15);
+}
+@media (min-width: 900px) { .panel { padding: 30px 26px 24px; } .mundo { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent; } }
+.panel h2 { font-family: "Anton", sans-serif; font-style: italic; font-weight: 400; font-size: clamp(32px, 8vw, 46px); letter-spacing: .5px; }
+.panel h2 span { background: linear-gradient(90deg, var(--cian), var(--violeta), var(--rosa)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sub { font-size: 13px; color: rgba(255,255,255,.62); margin: 4px 0 18px; }
+.h3 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin: 26px 0 10px; text-align: left; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 560px) { .vids { grid-template-columns: 1fr 1fr; gap: 18px; } }
+.vid {
+  position: relative; display: block; border-radius: 18px; overflow: hidden; text-decoration: none; color: #fff; text-align: left; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.14); background: #12042a; aspect-ratio: 16/9;
+  box-shadow: 0 12px 30px rgba(0,0,0,.5); transition: transform .35s cubic-bezier(.2,.9,.3,1.2), box-shadow .35s, border-color .35s;
+}
+.vid:hover { transform: translateY(-4px) scale(1.015); box-shadow: 0 18px 50px rgba(255,42,138,.35); border-color: rgba(255,42,138,.6); }
+.vid .mini { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform .6s; }
+.vid:hover .mini { transform: scale(1.06); }
+.vid::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,1,24,.15) 30%, rgba(8,1,24,.95)); }
+.vid .play {
+  position: absolute; z-index: 1; left: 50%; top: 44%; transform: translate(-50%,-50%);
+  width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(255,42,138,.9); box-shadow: 0 0 0 6px rgba(255,42,138,.25), 0 0 30px var(--rosa); animation: pulsa 2s infinite; transition: transform .3s;
+}
+.vid:hover .play { transform: translate(-50%,-50%) scale(1.12); }
+.vid .play svg { width: 24px; height: 24px; margin-left: 4px; }
+@keyframes pulsa { 50% { box-shadow: 0 0 0 13px rgba(255,42,138,.07), 0 0 44px var(--rosa); } }
+.vid .num { position: absolute; z-index: 1; top: 10px; left: 10px; font-family: "Anton", sans-serif; font-size: 13px; letter-spacing: 1px; padding: 4px 10px; border-radius: 8px; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2); }
+.vid .num.nuevo { background: var(--rosa); box-shadow: 0 0 14px var(--rosa); border-color: transparent; }
+.vid .txt { position: absolute; z-index: 1; left: 16px; right: 16px; bottom: 13px; }
+.vid .txt b { display: block; font-family: "Anton", sans-serif; font-weight: 400; font-size: 23px; letter-spacing: .3px; }
+.vid .txt small { font-size: 12px; color: rgba(255,255,255,.68); }
+.todos { margin-top: 16px; }
+.btn.grande { height: 50px; padding: 0 22px; font-size: 15px; background: linear-gradient(90deg, var(--rosa), var(--naranja)); border: 0; box-shadow: 0 0 24px rgba(255,42,138,.5); }
+
+.oficial { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (min-width: 900px) { .oficial { grid-template-columns: repeat(3, 1fr); } }
+.of { display: flex; flex-direction: column; gap: 3px; padding: 14px; border-radius: 14px; text-decoration: none; text-align: left; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #fff; transition: background .3s, border-color .3s, transform .3s; }
+.of:hover { background: rgba(0,240,255,.1); border-color: rgba(0,240,255,.5); transform: translateY(-2px); }
+.of span { font-size: 22px; }
+.of b { font-size: 14px; }
+.of small { font-size: 11px; color: rgba(255,255,255,.55); line-height: 1.35; }
+
+.mbarra { height: 8px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; margin-bottom: 6px; }
+.mbarra i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--verde), var(--cian)); box-shadow: 0 0 12px var(--verde); transition: width .8s; }
+.mcuenta { font-size: 12px; color: #9dffd2; margin-bottom: 14px; }
+.fila {
+  display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 12px; text-align: left;
+  padding: 11px 13px; margin-bottom: 7px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06);
+  transition: background .4s, border-color .4s, transform .4s, opacity .4s;
+}
+.fila .flag { width: 34px; height: 24px; }
+.fila .nom { font-size: 14px; font-weight: 700; line-height: 1.2; }
+.fila .hora { font-size: 11px; color: rgba(255,255,255,.55); }
+.fila .est { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.8); white-space: nowrap; }
+.fila.hecho { opacity: .55; }
+.fila.hecho .est { color: var(--verde); }
+.fila.sig { background: rgba(0,240,255,.09); border-color: rgba(0,240,255,.5); box-shadow: 0 0 20px rgba(0,240,255,.2); transform: scale(1.02); }
+.fila.sig .est { color: var(--cian); text-shadow: 0 0 8px var(--cian); }
+.fila.yo { border-color: rgba(255,42,138,.7); background: linear-gradient(90deg, rgba(255,42,138,.2), rgba(255,138,61,.08)); }
+.fila.yo .nom::after { content: "TÚ"; margin-left: 8px; font-size: 10px; padding: 2px 7px; border-radius: 6px; vertical-align: 2px; background: var(--rosa); box-shadow: 0 0 10px var(--rosa); }
+.nota { font-size: 11px; color: rgba(255,255,255,.45); margin-top: 12px; line-height: 1.5; }
+
+/* ===== Cine (reproductor dentro de la web) ===== */
+.cine { position: fixed; inset: 0; z-index: 40; display: none; flex-direction: column; background: radial-gradient(ellipse at 50% 30%, #2a0a45 0%, #05010f 70%); }
+.cine.abierto { display: flex; animation: aparece .35s ease-out; }
+@keyframes aparece { from { opacity: 0; transform: scale(1.03) } }
+.cine-barra { display: flex; align-items: center; gap: 8px; padding: max(10px, env(safe-area-inset-top)) 12px 10px; }
+.cine-tit { flex: 1; text-align: left; font-family: "Anton", sans-serif; font-size: clamp(17px, 2.2vw, 26px); letter-spacing: .5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cine-tit small { font-family: "Space Grotesk", sans-serif; font-size: 12px; color: rgba(255,255,255,.55); margin-left: 10px; letter-spacing: 0; }
+.btn.cerrar { background: var(--rosa); border-color: var(--rosa); box-shadow: 0 0 16px rgba(255,42,138,.6); }
+.cine-video { flex: 1; display: grid; place-items: center; padding: 0 10px; min-height: 0; }
+.cine-marco { position: relative; width: min(100%, calc((100vh - 140px) * 16 / 9)); aspect-ratio: 16/9; border-radius: 14px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 0 70px rgba(255,42,138,.35), 0 30px 80px rgba(0,0,0,.8); }
+.cine-marco iframe, .cine-marco #ytp { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.cine-aviso { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; background-size: cover; background-position: center; }
+.cine-aviso::before { content: ""; position: absolute; inset: 0; background: rgba(5,0,15,.82); backdrop-filter: blur(6px); }
+.cine-aviso > * { position: relative; }
+.cine-aviso h4 { font-family: "Anton", sans-serif; font-weight: 400; font-size: clamp(20px, 3vw, 30px); }
+.cine-aviso p { max-width: 520px; font-size: 14px; line-height: 1.5; color: rgba(255,255,255,.75); }
+.cine-pie { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; padding: 12px 12px max(14px, env(safe-area-inset-bottom)); }
+.pts { display: flex; gap: 6px; align-items: center; margin: 0 6px; }
+.pts i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); transition: all .3s; }
+.pts i.on { width: 24px; border-radius: 99px; background: var(--rosa); box-shadow: 0 0 10px var(--rosa); }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+</style>
+</head>
+<body>
+<canvas id="fondo"></canvas>
+<div class="vineta"></div>
+<div class="scan"></div>
+<canvas id="fuegos"></canvas>
+<div class="flash"></div>
+<div class="avisos" id="avisos"></div>
+
+<div class="flotantes">
+  <button class="btn" id="musBtn" title="Música synthwave">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span class="t" id="musTxt">Música</span>
+  </button>
+  <button class="btn" id="pcBtn" title="Pantalla completa">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="t">Pantalla completa</span>
+  </button>
+</div>
+
+<section class="hero">
+  <div class="tag"><span class="punto"></span><span id="tagtxt">Hoy · Gran Canaria · PS5</span></div>
+  <div class="logo"><span class="g">GTA VI</span></div>
+  <div class="frase" id="frase">Desbloqueo en</div>
+
+  <div class="reloj" id="reloj">
+    <div class="grupo"><div class="par"><div class="ficha" id="f0"></div><div class="ficha" id="f1"></div></div><span class="lbl" id="lh">Horas</span></div>
+    <div class="sep"><i></i><i></i></div>
+    <div class="grupo"><div class="par"><div class="ficha" id="f2"></div><div class="ficha" id="f3"></div></div><span class="lbl">Min</span></div>
+    <div class="sep"><i></i><i></i></div>
+    <div class="grupo seg"><div class="par"><div class="ficha" id="f4"></div><div class="ficha" id="f5"></div></div><span class="lbl">Seg</span></div>
+  </div>
+
+  <div class="ya"><span>¡YA SE PUEDE<br>JUGAR!</span></div>
+
+  <div class="info">
+    <div class="chip">
+      <small>Desbloqueo</small>
+      <b>Hoy · <span class="oro">23:00</span></b>
+      <span class="dim">Miércoles 18 nov, hora canaria</span>
+    </div>
+    <div class="chip">
+      <small>Progreso del día</small>
+      <div class="barra"><i id="barra"></i></div>
+      <div class="fila-barra"><span>00:00</span><span id="pct">0%</span><span>23:00</span></div>
+    </div>
+    <div class="chip">
+      <small id="sigLbl">Siguiente región</small>
+      <b id="sigNom">—</b>
+      <span class="cian" id="sigT"></span>
+    </div>
+  </div>
+
+  <a class="bajar" href="#extra">Tráileres y vuelta al mundo
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
+</section>
+
+<div class="extra" id="extra">
+  <section class="panel">
+    <h2><span>Tráileres oficiales</span></h2>
+    <p class="sub">Se ven aquí mismo, a pantalla completa, sin comentarios ni vídeos recomendados 🙈</p>
+    <div class="vids" id="vids"></div>
+    <div class="todos"><button class="btn grande" id="maraton">▶ Verlos todos seguidos</button></div>
+
+    <div class="h3">Lo oficial de Rockstar</div>
+    <div class="oficial">
+      <a class="of" href="https://www.rockstargames.com/VI" target="_blank" rel="noopener"><span>🌴</span><b>Web oficial</b><small>rockstargames.com/VI</small></a>
+      <a class="of" href="https://www.rockstargames.com/VI/only-in-leonida" target="_blank" rel="noopener"><span>🗺️</span><b>Only in Leonida</b><small>Personajes y lugares</small></a>
+      <a class="of" href="https://www.rockstargames.com/VI/music" target="_blank" rel="noopener"><span>🎵</span><b>Música</b><small>GTA VI: The Album</small></a>
+      <a class="of" href="https://www.rockstargames.com/newswire" target="_blank" rel="noopener"><span>📰</span><b>Rockstar Newswire</b><small>Noticias oficiales</small></a>
+      <a class="of" href="https://store.playstation.com/es-es/concept/10000730" target="_blank" rel="noopener"><span>🎮</span><b>PlayStation Store</b><small>Ficha del juego</small></a>
+      <a class="of" href="https://www.youtube.com/@RockstarGames/videos" target="_blank" rel="noopener"><span>▶️</span><b>Canal de Rockstar</b><small>Ojo: ahí ya hay recomendados</small></a>
+    </div>
+  </section>
+
+  <section class="panel mundo">
+    <h2><span>Vuelta al mundo</span></h2>
+    <p class="sub">Cuándo se desbloquea en cada región (hora canaria)</p>
+    <div class="mbarra"><i id="mbarra"></i></div>
+    <div class="mcuenta" id="mcuenta"></div>
+    <div id="lista"></div>
+    <p class="nota">Las horas van por la región de la tienda de PlayStation de la cuenta. En noviembre, la hora canaria coincide con la UTC.</p>
+  </section>
+</div>
+
+<div class="cine" id="cine" role="dialog" aria-modal="true">
+  <div class="cine-barra">
+    <div class="cine-tit" id="cineTit"></div>
+    <button class="btn" id="cineFs" title="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="t">Pantalla completa</span></button>
+    <button class="btn cerrar" id="cineX" title="Cerrar (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="cine-video"><div class="cine-marco" id="cineMarco"></div></div>
+  <div class="cine-pie">
+    <button class="btn" id="cineAnt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg><span class="t">Anterior</span></button>
+    <div class="pts" id="cinePts"></div>
+    <button class="btn" id="cineSig"><span class="t">Siguiente</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<script>
+/* ===================== DATOS ===================== */
+// 18 nov 2026 23:00 en Canarias (UTC+0) = 00:00 del 19 en la Península
+let OBJETIVO = Date.UTC(2026, 10, 18, 23, 0, 0);
+let INICIO   = Date.UTC(2026, 10, 18, 0, 0, 0);
+// Prueba: añade ?test=20 a la dirección para ver el final en 20 segundos
+const prueba = Number(new URLSearchParams(location.search).get("test"));
+if (prueba) { OBJETIVO = Math.ceil((Date.now() + prueba * 1000) / 1000) * 1000; INICIO = Date.now() - 60000; }
+
+const U = (d, h, m = 0) => Date.UTC(2026, 10, d, h, m);
+const TANDAS = [
+  { t: U(18, 11),     c: "nz", n: "Nueva Zelanda" },
+  { t: U(18, 13),     c: "au", n: "Australia" },
+  { t: U(18, 15),     c: "jp", n: "Japón y Corea del Sur" },
+  { t: U(18, 16),     c: "sg", n: "Hong Kong, Malasia, Singapur, Taiwán" },
+  { t: U(18, 17),     c: "th", n: "Indonesia y Tailandia" },
+  { t: U(18, 18, 30), c: "in", n: "India" },
+  { t: U(18, 20),     c: "ae", n: "Emiratos Árabes" },
+  { t: U(18, 21),     c: "tr", n: "Arabia Saudí y Turquía" },
+  { t: U(18, 22),     c: "gr", n: "Grecia, Finlandia, Rumanía, Ucrania…" },
+  { t: OBJETIVO,      c: "es", n: "España y Europa central", yo: true },
+  { t: U(19, 0),      c: "gb", n: "Reino Unido, Irlanda, Portugal" },
+  { t: U(19, 3),      c: "br", n: "Brasil, Argentina, Chile" },
+  { t: U(19, 4),      c: "bo", n: "Bolivia" },
+  { t: U(19, 5),      c: "us", n: "EE. UU., Canadá, Colombia, Perú" },
+  { t: U(19, 6),      c: "mx", n: "México y Centroamérica" },
+];
+const VIDEOS = [
+  { id: "QdBZY2fkU-0", n: "TRÁILER 1",   t: "Trailer 1",        d: "Rockstar Games · diciembre 2023" },
+  { id: "QiIebY4wmWg", n: "TRÁILER 2",   t: "Tráiler 2",        d: "Rockstar Games España" },
+  { id: "tJbzMqJGH4k", n: "TRÁILER 3",   t: "An Extended Look", d: "Rockstar Games · versión extendida" },
+  { id: "rz1B4B2yBZY", n: "LANZAMIENTO", t: "Launch Trailer",   d: "Rockstar Games · tráiler de salida", nuevo: true },
+];
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0");
+const bandera = c => `<img class="flag" src="https://flagcdn.com/w80/${c}.png" alt="" loading="lazy">`;
+function fmt(ms) {
+  let s = Math.max(0, Math.ceil(ms / 1000));
+  const h = Math.floor(s / 3600); s %= 3600;
+  return pad(h) + ":" + pad(Math.floor(s / 60)) + ":" + pad(s % 60);
+}
+function horaTxt(t) { const d = new Date(t); return (d.getUTCDate() === 18 ? "Hoy " : "Mañana ") + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()); }
+
+/* ===================== FICHAS (split-flap) ===================== */
+const fichas = [];
+for (let i = 0; i < 6; i++) {
+  const el = $("f" + i);
+  el.innerHTML = '<div class="m ar"><span>0</span></div><div class="m ab"><span>0</span></div><div class="m gs"><span>0</span></div><div class="m gi"><span>0</span></div>';
+  const [ar, ab, gs, gi] = el.querySelectorAll("span");
+  fichas.push({ el, ar, ab, gs, gi, v: null, timer: 0 });
+}
+const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)");
+function fijaFicha(f, v) { // deja la ficha quieta, las 4 mitades con el mismo número
+  f.ar.textContent = f.ab.textContent = f.gs.textContent = f.gi.textContent = v;
+  f.el.classList.remove("gira");
+}
+function ponFicha(i, v) {
+  const f = fichas[i];
+  if (f.v === v) return;
+  const viejo = f.v;
+  f.v = v;
+  clearTimeout(f.timer);
+  if (viejo === null || sinMovimiento.matches || document.hidden) return fijaFicha(f, v);
+  // arriba fija: nuevo · abajo fija: viejo · solapa que cae: viejo · solapa que sube: nuevo
+  f.ar.textContent = v; f.ab.textContent = viejo; f.gs.textContent = viejo; f.gi.textContent = v;
+  f.el.classList.remove("gira"); void f.el.offsetWidth; f.el.classList.add("gira");
+  f.timer = setTimeout(() => fijaFicha(f, v), 600);
+}
+
+/* ===================== LISTA DEL MUNDO ===================== */
+const filas = TANDAS.map(x => {
+  const f = document.createElement("div");
+  f.className = "fila" + (x.yo ? " yo" : "");
+  f.innerHTML = `${bandera(x.c)}<div><div class="nom">${x.n}</div><div class="hora">${horaTxt(x.t)}</div></div><div class="est"></div>`;
+  $("lista").appendChild(f);
+  return { x, f, est: f.querySelector(".est"), hecho: null };
+});
+
+function aviso(x) {
+  const a = document.createElement("div");
+  a.className = "aviso";
+  a.innerHTML = `${bandera(x.c).replace('class="flag"', 'class="flag"')}<div><b>${x.n.split(",")[0]} ya está jugando</b><small>¡Desbloqueado! 🎮</small></div>`;
+  $("avisos").appendChild(a);
+  setTimeout(() => a.remove(), 6200);
+  if (!fiesta) for (let i = 0; i < 2; i++) setTimeout(() => explota(rnd(W * .2, W * .8), rnd(H * .1, H * .35), 50), i * 250);
+}
+
+/* ===================== BUCLE DE TIEMPO ===================== */
+let terminado = false, progreso = 0, ultimoSeg = -1;
+function tick() {
+  const ahora = Date.now(), resta = OBJETIVO - ahora;
+  progreso = Math.min(1, Math.max(0, (ahora - INICIO) / (OBJETIVO - INICIO)));
+
+  if (resta <= 0) {
+    if (!terminado) {
+      terminado = true;
+      document.body.classList.remove("final", "ultima"); document.body.classList.add("listo");
+      $("tagtxt").textContent = "Desbloqueado · Gran Canaria"; document.title = "🎮 ¡YA SE PUEDE JUGAR!";
+      lanzaFiesta();
+    }
+  } else {
+    let s = Math.ceil(resta / 1000);
+    const h = Math.floor(s / 3600); s %= 3600;
+    const m = Math.floor(s / 60), x = s % 60;
+    const txt = pad(Math.min(h, 99)) + pad(m) + pad(x);
+    for (let i = 0; i < 6; i++) ponFicha(i, txt[i]);
+    $("lh").textContent = h === 1 ? "Hora" : "Horas";
+    document.body.classList.toggle("ultima", resta <= 3600000);
+    document.body.classList.toggle("final", resta <= 60000);
+    $("frase").textContent = resta <= 60000 ? "¡Último minuto!" : resta <= 3600000 ? "¡Última hora!" : "Desbloqueo en";
+    document.title = `${pad(h)}:${pad(m)}:${pad(x)} · GTA VI`;
+    const seg = Math.ceil(resta / 1000);
+    if (seg !== ultimoSeg) { ultimoSeg = seg; if (seg <= 10) pitido(seg); }
+  }
+
+  $("barra").style.width = (progreso * 100).toFixed(2) + "%";
+  $("pct").innerHTML = `<b style="color:var(--oro)">${Math.floor(progreso * 100)}%</b>`;
+
+  let hechos = 0, sig = null;
+  for (const r of filas) {
+    const falta = r.x.t - ahora, h = falta <= 0;
+    if (r.hecho === false && h && !r.x.yo) aviso(r.x);
+    r.hecho = h;
+    r.f.classList.toggle("hecho", h);
+    r.f.classList.remove("sig");
+    if (h) { hechos++; r.est.textContent = "✅ Jugando"; }
+    else { r.est.textContent = fmt(falta); if (!sig) { sig = r; r.f.classList.add("sig"); } }
+  }
+  $("mbarra").style.width = (hechos / filas.length * 100) + "%";
+  $("mcuenta").textContent = hechos === filas.length ? "🌍 Ya se juega en todo el mundo" : `${hechos} de ${filas.length} regiones desbloqueadas`;
+  if (sig) {
+    $("sigLbl").textContent = sig.x.yo ? "Siguiente región: ¡la tuya!" : "Siguiente región";
+    const nom = bandera(sig.x.c) + sig.x.n.split(",")[0];
+    if ($("sigNom").dataset.c !== sig.x.c) { $("sigNom").innerHTML = nom; $("sigNom").dataset.c = sig.x.c; }
+    $("sigT").textContent = "en " + fmt(sig.x.t - ahora);
+  } else { $("sigLbl").textContent = "Mundo"; $("sigNom").textContent = "🌍 Todo desbloqueado"; $("sigT").textContent = ""; }
+}
+
+/* ===================== ESCENA ===================== */
+const cv = $("fondo"), c = cv.getContext("2d");
+const fc = $("fuegos"), f = fc.getContext("2d");
+let W, H, DPR, HZ, estrellas = [], fugaces = [], bokeh = [], coches = [], ciudad, montes;
+let mx = 0, my = 0, tmx = 0, tmy = 0;
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+function preparar() {
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = innerWidth; H = innerHeight;
+  for (const [cn, cx] of [[cv, c], [fc, f]]) { cn.width = W * DPR; cn.height = H * DPR; cx.setTransform(DPR, 0, 0, DPR, 0, 0); }
+  HZ = Math.round(H * (W > 900 ? 0.68 : 0.62));
+
+  estrellas = Array.from({ length: Math.round(W * H / 2400) }, () => ({ x: rnd(-30, W + 30), y: rnd(0, HZ * .85), r: rnd(.3, 1.6), f: rnd(0, 6.28), v: rnd(.6, 2.4), p: rnd(.2, 1) }));
+  bokeh = Array.from({ length: 26 }, () => ({ x: rnd(0, W), y: rnd(0, H), r: rnd(2, 8), v: rnd(.12, .45), h: Math.random() < .5 ? 320 : 190, f: rnd(0, 6.28) }));
+  coches = Array.from({ length: Math.round(W / 45) }, () => nuevoCoche(true));
+
+  // Montañas con roque
+  montes = document.createElement("canvas"); montes.width = (W + 80) * DPR; montes.height = HZ * DPR;
+  const m = montes.getContext("2d"); m.scale(DPR, DPR); m.translate(40, 0);
+  const g = m.createLinearGradient(0, HZ * .55, 0, HZ); g.addColorStop(0, "#3d1064"); g.addColorStop(1, "#1a0533");
+  const pts = [[-.05, .86], [.08, .8], [.18, .83], [.28, .74], [.36, .78], [.44, .7], [.5, .73], [.555, .72], [.565, .6], [.578, .585], [.59, .7], [.64, .69], [.72, .77], [.8, .72], [.9, .8], [1.05, .76]];
+  m.fillStyle = g; m.beginPath(); m.moveTo(-40, HZ);
+  for (const [x, y] of pts) m.lineTo(x * W, y * HZ);
+  m.lineTo(W + 40, HZ); m.closePath(); m.fill();
+  m.strokeStyle = "rgba(255,110,180,.45)"; m.lineWidth = 1.3; m.shadowColor = "#ff2a8a"; m.shadowBlur = 8; m.beginPath();
+  pts.forEach(([x, y], i) => i ? m.lineTo(x * W, y * HZ) : m.moveTo(x * W, y * HZ)); m.stroke();
+
+  // Ciudad con ventanas y rascacielos
+  ciudad = document.createElement("canvas"); ciudad.width = (W + 120) * DPR; ciudad.height = HZ * DPR;
+  const k = ciudad.getContext("2d"); k.scale(DPR, DPR); k.translate(60, 0);
+  let x = -60;
+  while (x < W + 60) {
+    const centro = Math.min(1, Math.abs(x - W / 2) / (W / 2));
+    const bw = rnd(14, 36), bh = rnd(16, 66) * (1.3 - centro * .7) * (W > 900 ? 1.25 : 1) + (Math.random() < .1 ? rnd(30, 80) : 0);
+    const top = HZ - bh;
+    const gg = k.createLinearGradient(0, top, 0, HZ); gg.addColorStop(0, "#1d0840"); gg.addColorStop(1, "#0e0322");
+    k.fillStyle = gg; k.fillRect(x, top, bw, bh);
+    k.fillStyle = Math.random() < .5 ? "rgba(255,42,138,.6)" : "rgba(0,240,255,.45)"; k.fillRect(x, top, bw, 1);
+    for (let wy = top + 5; wy < HZ - 4; wy += 6) for (let wx = x + 3; wx < x + bw - 3; wx += 5)
+      if (Math.random() < .3) { k.fillStyle = Math.random() < .7 ? "rgba(255,210,120,.9)" : "rgba(0,240,255,.8)"; k.fillRect(wx, wy, 2, 2.5); }
+    if (bh > 80 && Math.random() < .7) { k.fillStyle = "#1d0840"; k.fillRect(x + bw / 2 - 1, top - 16, 2, 16); k.fillStyle = "#ff2a55"; k.shadowColor = "#ff2a55"; k.shadowBlur = 8; k.fillRect(x + bw / 2 - 1.5, top - 18, 3, 3); k.shadowBlur = 0; }
+    x += bw + rnd(0, 3);
+  }
+}
+function nuevoCoche(inicio) {
+  const dir = Math.random() < .5 ? 1 : -1;
+  return { x: inicio ? rnd(0, W) : (dir > 0 ? -20 : W + 20), dir, v: rnd(.6, 1.6), carril: dir > 0 ? 0 : 1 };
+}
+
+const solC = document.createElement("canvas"), sc = solC.getContext("2d");
+function sol(t, cx, cy, r) {
+  const halo = c.createRadialGradient(cx, cy, r * .4, cx, cy, r * 2.8);
+  halo.addColorStop(0, "rgba(255,130,90,.55)"); halo.addColorStop(.4, "rgba(255,42,138,.22)"); halo.addColorStop(1, "rgba(255,42,138,0)");
+  c.fillStyle = halo; c.fillRect(cx - r * 3, cy - r * 3, r * 6, r * 6);
+  const S = Math.ceil(r * 2 + 4);
+  if (solC.width !== S * DPR) { solC.width = S * DPR; solC.height = S * DPR; }
+  sc.setTransform(DPR, 0, 0, DPR, 0, 0); sc.clearRect(0, 0, S, S);
+  const g = sc.createLinearGradient(0, 0, 0, S);
+  g.addColorStop(0, "#fff3a8"); g.addColorStop(.45, "#ffb347"); g.addColorStop(.75, "#ff4f7b"); g.addColorStop(1, "#c4177a");
+  sc.fillStyle = g; sc.beginPath(); sc.arc(S / 2, S / 2, r, 0, 6.283); sc.fill();
+  sc.globalCompositeOperation = "destination-out";
+  const off = (t * 0.012 / 60) % 1;
+  for (let i = 0; i < 9; i++) sc.fillRect(0, S / 2 + (i + off) * (r / 8.5), S, 1 + (i + off) * .8);
+  sc.globalCompositeOperation = "source-over";
+  c.save(); c.beginPath(); c.rect(0, 0, W, HZ); c.clip(); c.drawImage(solC, cx - S / 2, cy - S / 2, S, S); c.restore();
+}
+
+function focos(t) { // reflectores de la ciudad barriendo el cielo
+  c.save(); c.globalCompositeOperation = "lighter";
+  for (const [px, fase, col] of [[.22, 0, "0,240,255"], [.78, 2.1, "255,42,138"], [.42, 4.2, "255,211,107"]]) {
+    const ox = px * W + mx * 14, oy = HZ - 20;
+    const ang = -Math.PI / 2 + Math.sin(t * .00035 + fase) * .55, L = HZ * 1.1, a = .07;
+    const ex = ox + Math.cos(ang) * L, ey = oy + Math.sin(ang) * L;
+    const nx = Math.cos(ang + Math.PI / 2) * L * .09, ny = Math.sin(ang + Math.PI / 2) * L * .09;
+    const g = c.createLinearGradient(ox, oy, ex, ey); g.addColorStop(0, `rgba(${col},${a * 2.2})`); g.addColorStop(1, `rgba(${col},0)`);
+    c.fillStyle = g; c.beginPath(); c.moveTo(ox, oy); c.lineTo(ex + nx, ey + ny); c.lineTo(ex - nx, ey - ny); c.closePath(); c.fill();
+  }
+  c.restore();
+}
+
+function puente(t) { // autopista con luces de coches
+  const y0 = HZ - 4;
+  c.fillStyle = "#0b0219"; c.fillRect(0, y0 - 2, W, 6);
+  c.fillStyle = "rgba(255,42,138,.55)"; c.fillRect(0, y0 - 2, W, 1);
+  c.save(); c.globalCompositeOperation = "lighter";
+  for (const k of coches) {
+    k.x += k.v * k.dir;
+    if (k.x < -30 || k.x > W + 30) Object.assign(k, nuevoCoche(false));
+    const y = y0 + (k.carril ? 2 : 0), col = k.dir > 0 ? "255,240,210" : "255,40,60";
+    const g = c.createLinearGradient(k.x, 0, k.x - k.dir * 26, 0); g.addColorStop(0, `rgba(${col},.95)`); g.addColorStop(1, `rgba(${col},0)`);
+    c.fillStyle = g; c.fillRect(Math.min(k.x, k.x - k.dir * 26), y, 26, 1.6);
+  }
+  c.restore();
+}
+
+function mar(t, cx, r) {
+  const g = c.createLinearGradient(0, HZ, 0, H);
+  g.addColorStop(0, "#3a0a4f"); g.addColorStop(.3, "#14032c"); g.addColorStop(1, "#05010f");
+  c.fillStyle = g; c.fillRect(0, HZ, W, H - HZ);
+  for (let y = HZ + 3; y < H; y += 3) {
+    const d = (y - HZ) / (H - HZ);
+    const ancho = r * (1.4 - d * .5) * (0.55 + 0.45 * Math.sin(y * .35 + t * .004));
+    c.fillStyle = `rgba(255,${Math.round(170 - d * 120)},${Math.round(90 + d * 60)},${(1 - d) * .6})`;
+    c.fillRect(cx - ancho / 2 + Math.sin(y * .2 + t * .003) * 6, y, ancho, 1.4);
+  }
+  c.save(); c.strokeStyle = "rgba(255,42,170,.6)"; c.lineWidth = 1;
+  const off = (t * 0.00035) % 1;
+  for (let i = 0; i < 18; i++) {
+    const z = (i + off) / 18, y = HZ + Math.pow(z, 2.4) * (H - HZ);
+    c.globalAlpha = .08 + z * .45; c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke();
+  }
+  c.globalAlpha = .3;
+  const vx = W / 2 + mx * 30;
+  for (let i = -16; i <= 16; i++) { c.beginPath(); c.moveTo(vx + i * W * .02, HZ); c.lineTo(W / 2 + i * W * .2, H); c.stroke(); }
+  c.restore();
+  const hl = c.createLinearGradient(0, 0, W, 0);
+  hl.addColorStop(0, "rgba(255,42,138,0)"); hl.addColorStop(.5, "rgba(255,200,120,.95)"); hl.addColorStop(1, "rgba(255,42,138,0)");
+  c.fillStyle = hl; c.fillRect(0, HZ, W, 2);
+}
+
+function palmera(t, bx, by, alto, lado, fase) {
+  const sway = Math.sin(t * .0009 + fase) * 0.05;
+  const tx = bx + lado * alto * (0.28 + sway), ty = by - alto;
+  c.save(); c.strokeStyle = "#06010f"; c.fillStyle = "#06010f"; c.lineCap = "round";
+  const N = 14;
+  const p = q => ({ x: bx + (tx - bx) * q + lado * Math.sin(q * 3.1) * alto * .05, y: by + (ty - by) * q });
+  for (let i = 0; i < N; i++) { const A = p(i / N), B = p((i + 1) / N); c.lineWidth = alto * (0.06 - i / N * 0.03); c.beginPath(); c.moveTo(A.x, A.y); c.lineTo(B.x, B.y); c.stroke(); }
+  for (let i = 0; i < 8; i++) {
+    const ang = -Math.PI / 2 + (i - 3.5) * 0.42 + Math.sin(t * .0016 + i + fase) * 0.06, L = alto * (0.5 + (i % 2) * 0.1);
+    c.save(); c.translate(tx, ty); c.rotate(ang);
+    c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(L * .5, -L * .22, L, L * .32); c.quadraticCurveTo(L * .5, -L * .04, 0, 0); c.fill();
+    c.lineWidth = 1.4;
+    for (let j = 1; j < 9; j++) { const q = j / 9, px = L * q, py = -L * .22 * Math.sin(q * Math.PI) * .9 + L * .32 * q * q; c.beginPath(); c.moveTo(px, py); c.lineTo(px + L * .05, py + L * .12); c.stroke(); }
+    c.restore();
+  }
+  c.restore();
+}
+
+function dibuja(t) {
+  mx += (tmx - mx) * .05; my += (tmy - my) * .05;
+  c.clearRect(0, 0, W, H);
+  const g = c.createLinearGradient(0, 0, 0, HZ);
+  g.addColorStop(0, "#07011a"); g.addColorStop(.35, "#1c0640"); g.addColorStop(.62, "#5a1170"); g.addColorStop(.82, "#d1307f"); g.addColorStop(.95, "#ff7a45"); g.addColorStop(1, "#ffc35a");
+  c.fillStyle = g; c.fillRect(0, 0, W, HZ + 1);
+
+  for (const s of estrellas) {
+    const a = .35 + .65 * Math.abs(Math.sin(s.f + t * .001 * s.v));
+    c.fillStyle = `rgba(255,255,255,${a * (1 - s.y / HZ)})`;
+    c.fillRect(s.x + mx * 6 * s.p, s.y + my * 4 * s.p, s.r, s.r);
+  }
+  if (Math.random() < .008) fugaces.push({ x: rnd(W * .1, W), y: rnd(0, HZ * .35), v: rnd(7, 12), vida: 1 });
+  for (const s of fugaces) {
+    s.x -= s.v; s.y += s.v * .45; s.vida -= .02;
+    const gg = c.createLinearGradient(s.x, s.y, s.x + 90, s.y - 40);
+    gg.addColorStop(0, `rgba(255,255,255,${s.vida})`); gg.addColorStop(1, "rgba(255,255,255,0)");
+    c.strokeStyle = gg; c.lineWidth = 1.6; c.beginPath(); c.moveTo(s.x, s.y); c.lineTo(s.x + 90, s.y - 40); c.stroke();
+  }
+  fugaces = fugaces.filter(s => s.vida > 0);
+
+  const r = Math.min(W * .36, H * .22);
+  const cx = W / 2 + mx * 10, cy = HZ - r * (0.95 - progreso * 0.55) + my * 6;
+  sol(t, cx, cy, r);
+  focos(t);
+  c.drawImage(montes, -40 + mx * 14, my * 3, W + 80, HZ);
+  c.drawImage(ciudad, -60 + mx * 22, 0, W + 120, HZ);
+  puente(t);
+  mar(t, cx, r);
+
+  for (const b of bokeh) {
+    b.y -= b.v; b.x += Math.sin(t * .001 + b.f) * .2;
+    if (b.y < -10) { b.y = H + 10; b.x = rnd(0, W); }
+    const gg = c.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r * 3);
+    gg.addColorStop(0, `hsla(${b.h},100%,70%,.33)`); gg.addColorStop(1, `hsla(${b.h},100%,60%,0)`);
+    c.fillStyle = gg; c.beginPath(); c.arc(b.x, b.y, b.r * 3, 0, 6.283); c.fill();
+  }
+
+  const ph = Math.min(H * .36, W * .55), px = mx * 40;
+  palmera(t, -W * .06 + px, H + 10, ph, 1, 0);
+  palmera(t, W * .04 + px, H + 20, ph * .68, 1, 1.7);
+  palmera(t, W * 1.06 + px, H + 10, ph * .92, -1, 3.1);
+  palmera(t, W * .96 + px, H + 20, ph * .6, -1, 4.4);
+
+  // inclinación 3D suave del reloj con el ratón
+  reloj.style.transform = `rotateY(${mx * 6}deg) rotateX(${-my * 4}deg)`;
+  requestAnimationFrame(dibuja);
+}
+const reloj = $("reloj");
+addEventListener("pointermove", e => { if (e.pointerType === "mouse") { tmx = e.clientX / innerWidth * 2 - 1; tmy = e.clientY / innerHeight * 2 - 1; } });
+
+/* ===================== FUEGOS ARTIFICIALES ===================== */
+let chispas = [], fiesta = false;
+function explota(x, y, n = 100) {
+  const tono = rnd(0, 360);
+  for (let i = 0; i < n; i++) { const a = (i / n) * 6.283, v = rnd(2, 7); chispas.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, vida: 1, tono: tono + rnd(-20, 20) }); }
+}
+function lanzaFiesta() {
+  fiesta = true;
+  for (let i = 0; i < 7; i++) setTimeout(() => explota(rnd(W * .15, W * .85), rnd(H * .1, H * .45)), i * 160);
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
+  fanfarria();
+}
+function dibujaFuegos() {
+  f.clearRect(0, 0, W, H);
+  if (fiesta && Math.random() < .06) explota(rnd(W * .1, W * .9), rnd(H * .1, H * .5));
+  f.globalCompositeOperation = "lighter";
+  for (const p of chispas) {
+    p.x += p.vx; p.y += p.vy; p.vy += .05; p.vx *= .985; p.vy *= .985; p.vida -= .012;
+    f.fillStyle = `hsla(${p.tono},100%,65%,${Math.max(0, p.vida)})`;
+    f.beginPath(); f.arc(p.x, p.y, 2.3, 0, 6.283); f.fill();
+  }
+  f.globalCompositeOperation = "source-over";
+  chispas = chispas.filter(p => p.vida > 0);
+  requestAnimationFrame(dibujaFuegos);
+}
+
+/* ===================== MÚSICA SYNTHWAVE (generada, sin archivos) ===================== */
+let ac = null, master = null, sonando = false, sigNota = 0, paso = 0, prog = null;
+const BPM = 100, SEMI = 60 / BPM / 4;
+const ACORDES = [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]]; // Lam, Fa, Do, Sol
+const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+function audio() {
+  if (ac) return;
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  master = ac.createGain(); master.gain.value = 0;
+  const comp = ac.createDynamicsCompressor(); master.connect(comp); comp.connect(ac.destination);
+  const delay = ac.createDelay(); delay.delayTime.value = SEMI * 3;
+  const fb = ac.createGain(); fb.gain.value = .35; delay.connect(fb); fb.connect(delay); delay.connect(master);
+  master.eco = delay;
+}
+function nota(n, t, dur, tipo, vol, corte, eco) {
+  const o = ac.createOscillator(), g = ac.createGain(), lp = ac.createBiquadFilter();
+  o.type = tipo; o.frequency.value = hz(n); lp.type = "lowpass"; lp.frequency.value = corte;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(lp); lp.connect(g); g.connect(master); if (eco) g.connect(master.eco);
+  o.start(t); o.stop(t + dur + .05);
+}
+function pad3(acorde, t, dur) {
+  for (const n of acorde) for (const det of [-7, 7]) {
+    const o = ac.createOscillator(), g = ac.createGain(), lp = ac.createBiquadFilter();
+    o.type = "sawtooth"; o.frequency.value = hz(n); o.detune.value = det; lp.type = "lowpass"; lp.frequency.value = 900;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.025, t + .6); g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(lp); lp.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .1);
+  }
+}
+function programa() {
+  while (sigNota < ac.currentTime + .2) {
+    const compas = Math.floor(paso / 16) % 4, acorde = ACORDES[compas], p16 = paso % 16;
+    if (p16 === 0) pad3(acorde, sigNota, SEMI * 16);
+    if (p16 % 2 === 0) nota(acorde[0] - 24, sigNota, SEMI * 1.8, "triangle", .22, 600);
+    const arp = [0, 1, 2, 1, 0, 2, 1, 2][paso % 8];
+    nota(acorde[arp] + 12, sigNota, SEMI * 1.5, "square", .045, 2400, true);
+    if (p16 % 4 === 0) { // bombo suave
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.frequency.setValueAtTime(120, sigNota); o.frequency.exponentialRampToValueAtTime(40, sigNota + .15);
+      g.gain.setValueAtTime(.35, sigNota); g.gain.exponentialRampToValueAtTime(.001, sigNota + .2);
+      o.connect(g); g.connect(master); o.start(sigNota); o.stop(sigNota + .22);
+    }
+    sigNota += SEMI; paso++;
+  }
+}
+function musica() {
+  audio(); ac.resume();
+  sonando = !sonando;
+  master.gain.cancelScheduledValues(ac.currentTime);
+  master.gain.linearRampToValueAtTime(sonando ? .5 : 0, ac.currentTime + .8);
+  if (sonando) { sigNota = ac.currentTime + .1; prog = setInterval(programa, 50); }
+  else setTimeout(() => { if (!sonando) clearInterval(prog); }, 900);
+  $("musBtn").classList.toggle("on", sonando); $("musTxt").textContent = sonando ? "Música: ON" : "Música";
+}
+function pitido(s) { if (!ac || !sonando) return; nota(s <= 3 ? 88 : 81, ac.currentTime, .15, "sine", .25, 5000); }
+function fanfarria() { if (!ac || !sonando) return; [69, 73, 76, 81, 85, 88].forEach((n, i) => nota(n, ac.currentTime + i * .09, 1.2, "sawtooth", .08, 3000, true)); }
+$("musBtn").onclick = musica;
+
+/* ===================== TRÁILERES Y CINE ===================== */
+$("vids").innerHTML = VIDEOS.map((v, i) => `
+  <a class="vid" href="#" data-i="${i}">
+    <div class="mini" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')"></div>
+    <span class="num${v.nuevo ? " nuevo" : ""}">${v.n}</span>
+    <span class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M6 4l15 8-15 8z"/></svg></span>
+    <span class="txt"><b>${v.t}</b><small>${v.d}</small></span>
+  </a>`).join("");
+
+const cine = $("cine"), local = location.protocol === "file:";
+let actual = 0, maraton = false, ytApi = null, player = null;
+$("cinePts").innerHTML = VIDEOS.map(() => "<i></i>").join("");
+
+function cargaApi() {
+  if (ytApi) return ytApi;
+  ytApi = new Promise(res => {
+    window.onYouTubeIframeAPIReady = res;
+    const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s);
+  });
+  return ytApi;
+}
+function abreVideo(i) {
+  actual = (i + VIDEOS.length) % VIDEOS.length;
+  const v = VIDEOS[actual];
+  $("cineTit").innerHTML = `${v.t}<small>${v.d}</small>`;
+  [...$("cinePts").children].forEach((p, k) => p.classList.toggle("on", k === actual));
+  if (!cine.classList.contains("abierto")) {
+    cine.classList.add("abierto"); document.documentElement.style.overflow = "hidden";
+    pantallaCompleta(cine, true); // el cine ocupa toda la pantalla nada más abrir un tráiler
+  }
+  if (sonando) musica();
+
+  if (local) { // YouTube no deja reproducir dentro de un archivo abierto desde el disco (error 153)
+    $("cineMarco").innerHTML = `<div class="cine-aviso" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')">
+      <h4>Abre la versión online para verlo aquí</h4>
+      <p>YouTube no permite reproducir vídeos dentro de un archivo abierto desde el ordenador o el móvil. Desde la versión publicada en internet se ve aquí mismo, sin recomendados.</p>
+      <a class="btn grande" href="https://youtu.be/${v.id}" target="_blank" rel="noopener">Ver en YouTube ↗</a></div>`;
+    return;
+  }
+  $("cineMarco").innerHTML = '<div id="ytp"></div>';
+  cargaApi().then(() => {
+    player = new YT.Player("ytp", {
+      videoId: v.id, host: "https://www.youtube-nocookie.com",
+      playerVars: { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1, fs: 1, iv_load_policy: 3, origin: location.origin },
+      events: { onStateChange: e => { if (e.data === 0 && maraton && actual < VIDEOS.length - 1) abreVideo(actual + 1); } }
+    });
+  });
+}
+function cierraVideo() {
+  cine.classList.remove("abierto"); maraton = false;
+  try { player && player.destroy(); } catch (e) {} player = null;
+  $("cineMarco").innerHTML = ""; document.documentElement.style.overflow = "";
+  if ((document.fullscreenElement || document.webkitFullscreenElement) === cine) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+}
+function pantallaCompleta(el, soloEntrar) {
+  const fs = document.fullscreenElement || document.webkitFullscreenElement;
+  if (fs) { if (!soloEntrar) (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (req) { try { const r = req.call(el); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+  try { screen.orientation.lock("landscape").catch(() => {}); } catch (e) {}
+}
+$("vids").addEventListener("click", e => { const a = e.target.closest(".vid"); if (!a) return; e.preventDefault(); maraton = false; abreVideo(Number(a.dataset.i)); });
+$("maraton").onclick = () => { maraton = true; abreVideo(0); };
+$("cineX").onclick = cierraVideo;
+$("cineAnt").onclick = () => abreVideo(actual - 1);
+$("cineSig").onclick = () => abreVideo(actual + 1);
+$("cineFs").onclick = () => pantallaCompleta(cine);
+$("pcBtn").onclick = () => pantallaCompleta(document.documentElement);
+if (!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)) $("pcBtn").style.display = "none";
+addEventListener("keydown", e => {
+  if (!cine.classList.contains("abierto")) { if (e.key === "f" || e.key === "F") pantallaCompleta(document.documentElement); return; }
+  if (e.key === "Escape" && !document.fullscreenElement) cierraVideo();
+  if (e.key === "ArrowRight") abreVideo(actual + 1);
+  if (e.key === "ArrowLeft") abreVideo(actual - 1);
+});
+
+/* ===================== ARRANQUE ===================== */
+preparar();
+addEventListener("resize", preparar);
+// El reloj se actualiza justo al cambiar cada segundo (antes iba cada 250 ms y los saltos eran irregulares)
+function bucle() {
+  tick();
+  const resta = OBJETIVO - Date.now();
+  setTimeout(bucle, resta > 0 ? (resta % 1000 || 1000) + 8 : 1000);
+}
+bucle();
+requestAnimationFrame(dibuja);
+requestAnimationFrame(dibujaFuegos);
+async function despierta() { try { await navigator.wakeLock.request("screen"); } catch (e) {} }
+if ("wakeLock" in navigator) { despierta(); document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") despierta(); }); }
+</script>
+</body>
+</html>
