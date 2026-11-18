@@ -15,7 +15,7 @@
 :root {
   --rosa: #ff2a8a; --naranja: #ff8a3d; --oro: #ffd36b; --cian: #00f0ff; --violeta: #8b3dff; --verde: #2bff9e;
   --fondo: #0a0220;
-  --h: clamp(78px, 22vw, 150px);           /* alto de cada ficha */
+  --h: clamp(56px, 19vw, 150px);           /* alto de cada ficha (en móvil, que quepan las 6 a lo ancho) */
 }
 @media (min-width: 900px) { :root { --h: clamp(150px, 12.5vw, 230px); } }
 @media (min-width: 900px) and (max-height: 760px) { :root { --h: clamp(120px, 20vh, 170px); } }
@@ -80,13 +80,15 @@ body.listo .flash { animation: flash 1.2s ease-out; }
 }
 @media (min-width: 900px) and (max-height: 760px) { .logo { font-size: clamp(90px, 22vh, 170px); } }
 .logo .g {
-  display: block; position: relative;
+  /* La cursiva + la inclinación sacan las letras de su caja (sobre todo la «I»), y el degradado
+     solo se pinta dentro de la caja: el relleno le da sitio y el margen negativo deja el tamaño igual */
+  display: block; position: relative; padding: .12em .28em; margin: -.12em -.28em;
   background: linear-gradient(180deg, #fff7d1 0%, var(--oro) 20%, var(--naranja) 45%, var(--rosa) 70%, var(--violeta) 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 0 22px rgba(255,42,138,.55)) drop-shadow(0 7px 0 rgba(40,0,70,.95));
 }
 .logo .g::after { /* destello que recorre el logo */
-  content: "GTA VI"; position: absolute; inset: 0;
+  content: "GTA VI"; position: absolute; inset: 0; padding: inherit;
   background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.95) 50%, transparent 60%);
   background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: barrido 5s 1.5s infinite;
@@ -149,7 +151,7 @@ body.listo .flash { animation: flash 1.2s ease-out; }
 @keyframes aclara { from { opacity: .5 } to { opacity: 0 } }
 @keyframes tapa { 0%, 100% { opacity: 0 } 45% { opacity: .4 } }
 .ficha::before { /* bisagra */
-  content: ""; position: absolute; z-index: 3; left: -2px; right: -2px; top: calc(50% - 1px); height: 2px;
+  content: ""; position: absolute; z-index: 3; left: 0; right: 0; top: calc(50% - 1px); height: 2px;
   background: linear-gradient(90deg, #000, rgba(0,0,0,.85) 8%, rgba(0,0,0,.85) 92%, #000);
 }
 .ficha::after { /* marco de neón */
